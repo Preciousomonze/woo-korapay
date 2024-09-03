@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  * @package  WC_Korapay
  * @category Payment
  */
-class WC_Korapay_Gateway extends \WC_Payment_Gateway_CC {
+class WC_Korapay_Gateway extends \WC_Payment_Gateway {
     
 	/**
 	 * Is test mode active?
@@ -116,8 +116,8 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway_CC {
 
     public function __construct() {
         $this->id                 = 'korapay';
-        $this->icon               = ''; // URL to the icon that will be displayed on checkout.
-        $this->has_fields         = false;
+        // $this->icon               = ''; // URL to the icon that will be displayed on checkout. TODO
+       // $this->has_fields         = false;
         $this->method_title       = __( 'Korapay', 'woo-korapay' );
         $this->method_description = sprintf( __( 'Accept online payments from local and international customers using Mastercard, Visa, Verve Cards and Bank Accounts. <a href="%1$s" target="_blank">Sign up</a> for a Kora account, and <a href="%2$s" target="_blank">get your API keys</a>.', 'woo-korapay' ), 'https://korahq.com', 'https://merchant.korapay.com/dashboard/settings/api-integrations' );
         
@@ -134,16 +134,16 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway_CC {
         $this->load_settings_data();
 
 		// Hooks law :).
-        add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, [ $this, 'process_admin_options' ] );
-        //add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+        add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
+        add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 	
 		add_action( 'woocommerce_receipt_' . $this->id, array( $this, 'receipt_content' ) );
 
 		// Payment listener.
-		add_action( 'woocommerce_api_wc_korapay_gateway', array( $this, 'process_payment' ) );
+		add_action( 'woocommerce_api_wc_korapay_gateway', array( $this, 'verify_transaction' ) );
 
         // Our scripts.
-       // add_action( 'wp_enqueue_scripts', array( $this, 'payment_scripts' ) );
+       // add_action( 'wp_enqueue_scripts', array( $this, 'frontend_scripts' ) );
     }
 
     /**
@@ -193,24 +193,43 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway_CC {
         $this->supports = array(
 			'products',
 			'refunds',
-			'tokenization',
+			// 'tokenization',
 		);
     }
 
+    
+	/**
+	 * Check if Merchant details is filled.
+	 */
+	public function admin_notices() {
+		if ( 'no' === $this->enabled ) {
+			return;
+		}
+
+		// Check required fields.
+		if ( ! ( $this->active_public_key && $this->active_secret_key ) ) {
+			echo '<div class="error"><p>' . sprintf( __( 'Please enter your Korapay merchant details <a href="%s">here</a> to be able to use the Korapay WooCommerce plugin.', 'woo-korapay' ), admin_url( 'admin.php?page=wc-settings&tab=checkout&section=korapay' ) ) . '</p></div>';
+			return;
+		}
+	}
+
+	/**
+	 * Display Korapay payment icon.
+	 */
+	public function get_icon() {
+        $icon = '<img src="' . $this->get_logo_url() . '" alt="Korapay Payment Options" width="100px">';
+		return apply_filters( 'woocommerce_gateway_icon', $icon, $this->id );
+	}
+
+
     /**
 	 * Get payment icon URL.
+     * 
+     * Inspiration from Tubiz :).
 	 */
 	public function get_logo_url() {
-
 		$base_location = wc_get_base_location();
-
-		if ( 'GH' === $base_location['country'] ) {
-			$url = WC_HTTPS::force_https_url( plugins_url( 'assets/images/korapay-gh.png', WC_KORAPAY_MAIN_FILE ) );
-		} elseif ( 'KE' === $base_location['country'] ) {
-			$url = WC_HTTPS::force_https_url( plugins_url( 'assets/images/korapay-ke.png', WC_KORAPAY_MAIN_FILE ) );
-        } else {
-			$url = WC_HTTPS::force_https_url( plugins_url( 'assets/images/korapay-wc.png', WC_KORAPAY_MAIN_FILE ) );
-		}
+		$url           = \WC_HTTPS::force_https_url( plugins_url( 'assets/images/korapay-' . strtolower( $base_location['country'] ) . '.PNG', WC_KORAPAY_PLUGIN_FILE ) );
 
 		return apply_filters( 'wc_korapay_gateway_icon_url', $url, $this->id );
 	}
@@ -220,7 +239,6 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway_CC {
 	 */
 	public function admin_options() {
 		?>
-
 		<h2><?php _e( 'Korapay', 'woo-korapay' ); ?>
 		<?php
 		if ( function_exists( 'wc_back_link' ) ) {
@@ -242,7 +260,6 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway_CC {
 
 			<?php
 		}
-
 	}
 
     /**
@@ -341,7 +358,6 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway_CC {
 			'redirect' => $response->data->authorization_url,
 		);
     }
-
 
 	/**
 	 * Process a token payment.

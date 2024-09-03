@@ -56,11 +56,11 @@ if ( ! function_exists( 'WC_KORAPAY\\load_plugin_textdomain' ) ) {
 	 *
 	 * @since  1.0.0
 	 */
-	function load_plugin_textdomain() {
+	function load_textdomain() {
 		load_plugin_textdomain( 'wc-korapay', false, plugin_basename( dirname( WC_KORAPAY_PLUGIN_FILE ) ) . '/languages' );
 	}
 }
-add_action( 'plugins_loaded', 'WC_KORAPAY\\wc_korapay_gateway_init' );
+add_action( 'plugins_loaded', 'WC_KORAPAY\\load_textdomain' );
 
 
 if ( ! function_exists( 'WC_KORAPAY\\add_gateway_class' ) ) {
@@ -105,7 +105,6 @@ if ( ! function_exists( 'WC_KORAPAY\\declare_hpos_compatibility' ) ) {
 	 * @since 1.0.0
 	 */
 	function declare_hpos_compatibility() {
-
 		if ( ! class_exists( 'Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
 			return;
 		}
@@ -114,6 +113,25 @@ if ( ! function_exists( 'WC_KORAPAY\\declare_hpos_compatibility' ) ) {
 	}
 }
 add_action( 'before_woocommerce_init', 'WC_KORAPAY\\declare_hpos_compatibility' );
+
+
+if ( ! function_exists( 'WC_KORAPAY\\korapay_wc_block_support' ) ) {
+	/**
+	 * Registers WooCommerce Blocks integration.
+	 */
+	function korapay_wc_block_support() {
+		// if ( class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) { }
+		require_once WC_KORAPAY_PLUGIN_DIR . '/includes/class-wc-korapay-gateway-blocks-support.php';
+
+		add_action(
+			'woocommerce_blocks_payment_method_type_registration',
+			static function( Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry ) {
+				$payment_method_registry->register( new WC_Korapay_Gateway_Blocks_Support() );
+			}
+		);
+	}
+}
+add_action( 'woocommerce_blocks_loaded', 'WC_KORAPAY\\korapay_wc_block_support' );
 
 if ( ! function_exists( 'WC_KORAPAY\\missing_wc_notice' ) ) {
 
