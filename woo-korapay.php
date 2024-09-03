@@ -1,15 +1,15 @@
 <?php
 /*
  * Plugin Name: Kora Pay WooCommerce Payment Gateway
- * Plugin URI: https://yourwebsite.com/kora-pay
+ * Plugin URI: https://korayhq.com
  * Description: A WooCommerce payment gateway for Kora Pay.
  * Version: 1.0.0
  * Author: Precious Omonzejele
- * Author URI: https://yourwebsite.com
- * Text Domain: wc-korapay
+ * Author URI: https://github.com/Preciousomonze
+ * Text Domain: woo-korapay
  * Domain Path: /languages/
- * WC requires at least: 4.0
- * WC tested up to: 7.0
+ * WC requires at least: 7.0
+ * WC tested up to: 9.0
  */
 
 namespace WC_KORAPAY;
@@ -23,7 +23,7 @@ define( 'WC_KORAPAY_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WC_KORAPAY_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 
-if ( !function_exists( 'WC_KORAPAY\\wc_korapay_gateway_init' ) ) {
+if ( ! function_exists( 'WC_KORAPAY\\wc_korapay_gateway_init' ) ) {
     /**
      * Initialize the Kora Pay payment gateway.
      *
@@ -40,6 +40,7 @@ if ( !function_exists( 'WC_KORAPAY\\wc_korapay_gateway_init' ) ) {
 
         // Include the necessary classes for the payment gateway.
         require_once WC_KORAPAY_PLUGIN_DIR . 'includes/class-wc-korapay-gateway.php';
+        require_once WC_KORAPAY_PLUGIN_DIR . 'includes/class-wc-korapay-api.php';
         
         // Register the Kora Pay gateway with WooCommerce.
         add_filter( 'woocommerce_payment_gateways', 'WC_KORAPAY\\add_gateway_class' );
@@ -47,7 +48,22 @@ if ( !function_exists( 'WC_KORAPAY\\wc_korapay_gateway_init' ) ) {
 }
 add_action( 'plugins_loaded', 'WC_KORAPAY\\wc_korapay_gateway_init', 11 );
 
-if ( !function_exists( 'WC_KORAPAY\\add_gateway_class' ) ) {
+
+if ( ! function_exists( 'WC_KORAPAY\\load_plugin_textdomain' ) ) {
+
+	/**
+	 * Load Localisation files.
+	 *
+	 * @since  1.0.0
+	 */
+	function load_plugin_textdomain() {
+		load_plugin_textdomain( 'wc-korapay', false, plugin_basename( dirname( WC_KORAPAY_PLUGIN_FILE ) ) . '/languages' );
+	}
+}
+add_action( 'plugins_loaded', 'WC_KORAPAY\\wc_korapay_gateway_init' );
+
+
+if ( ! function_exists( 'WC_KORAPAY\\add_gateway_class' ) ) {
     /**
      * Add the Kora Pay gateway to WooCommerce's list of payment gateways.
      *
@@ -60,7 +76,7 @@ if ( !function_exists( 'WC_KORAPAY\\add_gateway_class' ) ) {
     }
 }
 
-if ( !function_exists( 'WC_KORAPAY\\gateway_action_links' ) ) {
+if ( ! function_exists( 'WC_KORAPAY\\gateway_action_links' ) ) {
     /**
      * Add custom action links to the plugin on the plugins page.
      *
@@ -70,7 +86,7 @@ if ( !function_exists( 'WC_KORAPAY\\gateway_action_links' ) ) {
     function gateway_action_links( $links ) {
         // Define the settings link.
         $plugin_links = [
-            '<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=korapay' ) ) . '">' . __( 'Settings', 'wc-korapay' ) . '</a>',
+            '<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=korapay' ) ) . '">' . __( 'Settings', 'woo-korapay' ) . '</a>',
         ];
 
         // Merge and return the new array of links.
@@ -86,7 +102,7 @@ if ( ! function_exists( 'WC_KORAPAY\\declare_hpos_compatibility' ) ) {
 	/**
 	 * Declare HPOS (Custom Order tables) compatibility.
 	 *
-	 * @since 2.1.0
+	 * @since 1.0.0
 	 */
 	function declare_hpos_compatibility() {
 
@@ -120,7 +136,7 @@ if ( ! function_exists( 'WC_KORAPAY\\missing_wc_notice' ) ) {
 
 		$admin_notice_content = sprintf(
 			// translators: 1$-2$: opening and closing <strong> tags, 3$-4$: link tags, takes to woocommerce plugin on wp.org, 5$-6$: opening and closing link tags, leads to plugins.php in admin
-			esc_html__( '%1$sWooCommerce Korapay Gateway is inactive.%2$s The %3$sWooCommerce plugin%4$s must be active for the Koraypay Gateway to work. Please %5$sinstall & activate WooCommerce &raquo;%6$s', 'wc-korapay' ),
+			esc_html__( '%1$sWooCommerce Korapay Gateway is inactive.%2$s The %3$sWooCommerce plugin%4$s must be active for the Koraypay Gateway to work. Please %5$sinstall & activate WooCommerce &raquo;%6$s', 'woo-korapay' ),
 			'<strong>',
 			'</strong>',
 			'<a href="http://wordpress.org/extend/plugins/woocommerce/">',
