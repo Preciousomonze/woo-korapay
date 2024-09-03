@@ -18,6 +18,7 @@ defined( 'ABSPATH' ) || exit;
 
 // Define plugin constants.
 define( 'WC_KORAPAY_VERSION', '1.0.0' );
+define( 'WC_KORAPAY_PLUGIN_FILE', __FILE__ );
 define( 'WC_KORAPAY_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WC_KORAPAY_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
@@ -80,6 +81,23 @@ if ( !function_exists( 'WC_KORAPAY\\gateway_action_links' ) ) {
 // Hook to add the action links to the plugin.
 add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'WC_KORAPAY\\gateway_action_links' );
 
+if ( ! function_exists( 'WC_KORAPAY\\declare_hpos_compatibility' ) ) {
+
+	/**
+	 * Declare HPOS (Custom Order tables) compatibility.
+	 *
+	 * @since 2.1.0
+	 */
+	function declare_hpos_compatibility() {
+
+		if ( ! class_exists( 'Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
+			return;
+		}
+
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', plugin_basename( WC_KORAPAY_PLUGIN_FILE ), true );
+	}
+}
+add_action( 'before_woocommerce_init', 'WC_KORAPAY\\declare_hpos_compatibility' );
 
 if ( ! function_exists( 'WC_KORAPAY\\missing_wc_notice' ) ) {
 
