@@ -16,8 +16,7 @@ class WC_Korapay_API {
      *
      * @var string
      */
-    private static $api_url = 'ttps://api.korapay.com/merchant/api/v1/';
-
+    private static $api_url = 'https://api.korapay.com/merchant/api/v1/';
 
     /**
      * Get the arguments for the API request.
@@ -62,19 +61,20 @@ class WC_Korapay_API {
      *
      * @param string $endpoint The API endpoint to call.
      * @param array $body The request body to send.
+     * @param bool $disable_base_url If true, the $endpoint is used completely.
      * @param int $timeout If we need to set a timeout.
      * @param string $method The HTTP method to use (GET, POST, etc.).
      * @return array|WP_Error The processed response from the API or a WP_Error on failure.
      */
-    public static function send_request( $endpoint, $body = array(), $timeout = 0, $method = 'POST' ) {
-        $url = self::$api_url . ltrim( $endpoint, '/' );
+    public static function send_request( $endpoint, $body = array(), $disable_base_url = false, $timeout = 0, $method = 'POST' ) {
+        $url =  ( ! $disable_base_url ? self::$api_url . ltrim( $endpoint, '/' ) : $endpoint );
 
         // Prepare the request arguments based on the method.
         $args = self::get_request_args( $body, $timeout, $method );
 
         // Send the request using appropriate WP HTTP function.
         $response = ( 'GET' === strtoupper( $method ) ) ? wp_remote_get( $url, $args ) : wp_remote_post( $url, $args );
-        var_dump($response);
+       // var_dump($response);
         
         // Check for errors in the response.
         if ( is_wp_error( $response ) ) {
@@ -92,7 +92,7 @@ class WC_Korapay_API {
         }
 
         // Return an error if the API call failed.
-        return new \WP_Error( 'korapay_api_failed', __( 'API call to Kora Pay failed.', 'woo-korapay' ) );
+        return new \WP_Error( 'korapay_api_failed', __( 'API call to Kora Pay failed.', 'woo-korapay' ), $data );
     }
 
     /**

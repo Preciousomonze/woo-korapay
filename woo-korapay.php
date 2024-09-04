@@ -169,3 +169,25 @@ if ( ! function_exists( 'WC_KORAPAY\\missing_wc_notice' ) ) {
 		echo '</div>';
 	}
 }
+
+if ( ! function_exists( 'WC_KORAPAY\\display_proper_msg' ) ) {
+	/**
+	 * Display messages properly.
+	 * 
+	 * Incase of debugging
+	 * 
+	 * @param array  $response
+	 * @param int    $order_id 
+	 */
+	function display_proper_error(  $response, $order_id ) {
+		if (  ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ) {
+			?>
+			<script>
+				const wc_korapay_response = <?php json_encode( $response ); ?>;
+				console.log( { wc_korapay_response } );
+			</script>
+			<?php
+		}
+	}
+}
+add_action( 'wc_korapay_redirect_payment_error', 'WC_KORAPAY\\display_proper_error', 10, 2 );
