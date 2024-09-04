@@ -5,8 +5,8 @@
     "scripts": {
         "build": "wp-scripts build",
         "start": "wp-scripts start",
-        "compress-zip": "compress-zip-offload.sh -c",
-        "offload-zip": "compress-zip-offload.sh -o",
+        "compress-zip": "sh compress-zip-offload.sh -c",
+        "offload-zip": "sh compress-zip-offload.sh -o",
         "compress-zip-offload": "npm run compress-zip && npm run offload-zip"
     },
     "author": "Precious Omonzejele",
