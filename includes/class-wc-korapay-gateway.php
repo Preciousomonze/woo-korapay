@@ -347,7 +347,7 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
 
 		if ( is_wp_error( $response ) ) {
 
-            do_action( 'wc_korapay_redirect_payment_error', $response, $order_id );
+            //do_action( 'wc_korapay_redirect_payment_error', $response, $order_id );
 
             wc_add_notice( apply_filters( 'wc_korapay_redirect_payment_error_msg', __( 'Unable to process payment at this time, try again later.', 'woo-korapay' ), $response, $order_id ) , 'error' );
 			return;
