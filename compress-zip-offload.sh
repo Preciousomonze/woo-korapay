@@ -7,6 +7,7 @@
 BRANCH=$(git rev-parse --abbrev-ref HEAD);
 CLOSE_MSG="\n\nPress [Enter] to close window.";
 CMD_USAGE="usage: cmd [-c] to compress or [-o] to offload";
+PLUGIN_NAME="woo-korapay";
 
 if [[ "$BRANCH" != "main" ]]; then
   printf "Sorry fam, you can only zip and offload (deploy) on master branch, it kinda makes sense that way 😘.$CLOSE_MSG";
@@ -19,10 +20,10 @@ while getopts ":oc" opt;
     do
         case ${opt} in
         c ) # Compress
-            php cx-wp-plugin-deploy-helper.php --plugin_name=woo-korapay --ignore_file_path=.git,.wordpress-org,.vscode/,assets/js/src/,node_modules,vendor,.sh --delete_files_in_zip=cx-wp-plugin-deploy-helper.php,README.md,package-lock.json,composer.lock,phpcs.xml,.eslintrc.json,.distignore 
+            php cx-wp-plugin-deploy-helper.php --plugin_name=${PLUGIN_NAME} --ignore_file_path=.git,.wordpress-org,.vscode/,assets/js/src/,node_modules,vendor,.sh --delete_files_in_zip=cx-wp-plugin-deploy-helper.php,README.md,package-lock.json,composer.lock,phpcs.xml,.eslintrc.json,.distignore 
         ;;
         o ) # Offload to respective folder
-            php cx-wp-plugin-deploy-helper.php --plugin_name=woo-korapay --offload=true
+            php cx-wp-plugin-deploy-helper.php --plugin_name=${PLUGIN_NAME} --offload=true
         ;;
         \? ) # Default
             printf "invalid arg options \n$CMD_USAGE"
