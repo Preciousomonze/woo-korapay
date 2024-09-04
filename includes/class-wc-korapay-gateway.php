@@ -293,7 +293,7 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
 	 */
 	public function process_payment( $order_id ) {
 		if ( 'redirect' === $this->payment_page_type ) { // It will always be redirect, for now.
-			return $this->process_redirect_payment_option( $order_id );
+			return $this->process_redirect_payment( $order_id );
 		}
         /*
 		return array(
@@ -346,7 +346,7 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
         $response = WC_Korapay_API::send_request( 'charges/initialize', $korapay_params );
 
 		if ( is_wp_error( $response ) ) {
-        	wc_add_notice( apply_filters( 'wc_korapay_redirect_payment_error_msg', __( 'Unable to process payment at this time, try again later.', 'woo-korapay' ), $response, $order_id ) , 'error' );
+        	wc_add_notice( apply_filters( 'wc_korapay_redirect_payment_error_msg', __( 'Fool Unable to process payment at this time, try again later.', 'woo-korapay' ), $response, $order_id ) , 'error' );
 			return;
         }
 

@@ -52,7 +52,7 @@ final class WC_Korapay_Gateway_Blocks_Support extends AbstractPaymentMethodType 
 	 * @return array
 	 */
 	public function get_payment_method_script_handles() {
-		$script_asset_path = plugins_url( '/assets/js/blocks/frontend/blocks.asset.php', WC_KORAPAY_PLUGIN_FILE );
+		$script_asset_path = plugins_url( '/assets/js/build/blocks/frontend.asset.php', WC_KORAPAY_PLUGIN_FILE );
 		$script_asset      = file_exists( $script_asset_path )
 			? require $script_asset_path
 			: array(
@@ -60,7 +60,7 @@ final class WC_Korapay_Gateway_Blocks_Support extends AbstractPaymentMethodType 
 				'version'      => WC_KORAPAY_VERSION,
 			);
 
-		$script_url = plugins_url( '/assets/js/blocks/frontend/blocks.js', WC_KORAPAY_PLUGIN_FILE );
+		$script_url = plugins_url( '/assets/js/build/blocks/frontend.js', WC_KORAPAY_PLUGIN_FILE );
 
 		wp_register_script(
 			'wc-korapay-blocks',
