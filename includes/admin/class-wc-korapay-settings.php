@@ -5,7 +5,7 @@ namespace WC_KORAPAY;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Kora Pay Settings class.
+ * Kora Pay Settings class helper.
  *
  * @class    WC_Korapay_Settings
  * @version  1.0.0
@@ -21,6 +21,28 @@ class WC_Korapay_Settings {
 	 */
 	protected $settings_form_fields;
 
+    /**
+     * Retrieve the API key based on the environment and key type.
+     *
+     * @param string $key_type Either 'public' or 'secret'.
+     * @return string The corresponding API key.
+    */
+    public static function get_active_key( $key_type ) {
+        $settings = get_option( 'woocommerce_korapay_settings' );
+
+        // Check if test mode is enabled.
+        $test_mode = ( isset( $settings['testmode'] ) && 'yes' === $settings['testmode'] );
+        
+        // Determine the appropriate key to return based on the key type and environment.
+        if ( 'public' === $key_type ) {
+            return $test_mode ? $settings['test_public_key'] : $settings['live_public_key'];
+        } elseif ( 'secret' === $key_type ) {
+            return $test_mode ? $settings['test_secret_key'] : $settings['live_secret_key'];
+        }
+
+        // Return an empty string if the key type is not recognized.
+        return '';
+    }
     /**
      * Settings Form Field.
      */

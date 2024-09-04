@@ -3,9 +3,9 @@ namespace WC_KORAPAY;
 
 defined( 'ABSPATH' ) || exit;
 
-use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
-use Automattic\WooCommerce\StoreApi\Payments\PaymentContext;
-use Automattic\WooCommerce\StoreApi\Payments\PaymentResult;
+use \Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
+use \Automattic\WooCommerce\StoreApi\Payments\PaymentContext;
+use \Automattic\WooCommerce\StoreApi\Payments\PaymentResult;
 
 /**
  * Kora Pay Payment Gateway class.
@@ -104,7 +104,7 @@ final class WC_Korapay_Gateway_Blocks_Support extends AbstractPaymentMethodType 
 	public function failed_payment_notice( PaymentContext $context, PaymentResult &$result ) {
 		if ( $this->name === $context->payment_method ) {
 			add_action(
-				'wc_gateway_korapay_process_payment_error',
+				'wc_korapay_gateway_process_payment_error',
 				function( $failed_notice ) use ( &$result ) {
 					$payment_details                 = $result->payment_details;
 					$payment_details['errorMessage'] = wp_strip_all_tags( $failed_notice );

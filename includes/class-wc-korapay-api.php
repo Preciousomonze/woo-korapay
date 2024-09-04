@@ -30,9 +30,11 @@ class WC_Korapay_API {
      * @return array The arguments for the API request.
      */
     private static function get_request_args( $body = array(), $timeout = 0, $method = 'POST' ) {
+        $secret_key = WC_Korapay_Settings::get_active_key( 'secret' );
+
         // Set up the request headers.
         $headers = array(
-            'Authorization' => 'Bearer ' . get_option( 'wc_korapay_api_key' ),
+            'Authorization' => 'Bearer ' . $secret_key,
             'Content-Type'  => 'application/json',
         );
 
@@ -72,7 +74,8 @@ class WC_Korapay_API {
 
         // Send the request using appropriate WP HTTP function.
         $response = ( 'GET' === strtoupper( $method ) ) ? wp_remote_get( $url, $args ) : wp_remote_post( $url, $args );
-
+        var_dump($response);
+        
         // Check for errors in the response.
         if ( is_wp_error( $response ) ) {
             return $response;
