@@ -39,8 +39,9 @@ if ( ! function_exists( 'WC_KORAPAY\\wc_korapay_gateway_init' ) ) {
         }
 
         // Include the necessary classes for the payment gateway.
-        require_once WC_KORAPAY_PLUGIN_DIR . 'includes/class-wc-korapay-gateway.php';
-        require_once WC_KORAPAY_PLUGIN_DIR . 'includes/class-wc-korapay-api.php';
+        require_once WC_KORAPAY_PLUGIN_DIR . '/includes/class-wc-korapay-gateway.php';
+        require_once WC_KORAPAY_PLUGIN_DIR . '/includes/class-wc-korapay-api.php';
+        require_once WC_KORAPAY_PLUGIN_DIR . '/includes/admin/class-wc-korapay-settings.php';
         
         // Register the Kora Pay gateway with WooCommerce.
         add_filter( 'woocommerce_payment_gateways', 'WC_KORAPAY\\add_gateway_class' );
@@ -121,7 +122,7 @@ if ( ! function_exists( 'WC_KORAPAY\\korapay_wc_block_support' ) ) {
 	 */
 	function korapay_wc_block_support() {
 		// if ( class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) { }
-		require_once WC_KORAPAY_PLUGIN_DIR . 'includes/class-wc-korapay-gateway-blocks-support.php';
+		require_once WC_KORAPAY_PLUGIN_DIR . '/includes/class-wc-korapay-gateway-blocks-support.php';
 
 		add_action(
 			'woocommerce_blocks_payment_method_type_registration',

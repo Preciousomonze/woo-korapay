@@ -126,13 +126,13 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
         $this->supported_features();
 
         // Get our settings field.
-        $this->form_fields = require_once WC_KORAPAY_PLUGIN_DIR . 'includes/admin/wc-korapay-settings.php';
+        $this->form_fields = WC_Korapay_Settings::get_settings_form_fields(); //require_once WC_KORAPAY_PLUGIN_DIR . '/includes/admin/wc-korapay-settings.php';
 
         // Settings loader.
         $this->init_settings();
 
         $this->load_settings_data();
-
+            
 		// Hooks law :).
         add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
         add_action( 'admin_notices', array( $this, 'admin_notices' ) );
