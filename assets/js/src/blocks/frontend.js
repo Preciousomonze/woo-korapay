@@ -19,8 +19,8 @@ const Korapay_Gateway = {
 	canMakePayment: () => true,
 	ariaLabel: label,
 	supports: {
-		showSavedCards: settings.allow_saved_cards,
-		showSaveOption: settings.allow_saved_cards,
+		/*showSavedCards: settings.allow_saved_cards,
+		showSaveOption: settings.allow_saved_cards,*/
 		features: settings.supports,
 	},
 };

@@ -192,7 +192,7 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
     public function supported_features() {
         $this->supports = array(
 			'products',
-			'refunds',
+			// 'refunds',
 			// 'tokenization',
 		);
     }
@@ -302,7 +302,6 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
 		);*/
 	}
 
-
 	/**
 	 * Process a redirect payment.
 	 *
@@ -312,8 +311,27 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
 	public function process_redirect_payment( $order_id ) {
 		$order        = wc_get_order( $order_id );
 		$amount       = $order->get_total() * 100;
-		$txn_ref       = $order_id . '_' . time();
+		$txn_ref      = $order_id . '_' . time();
 		$callback_url = WC()->api_request_url( 'WC_Korapay_Gateway' );
+
+		// Let's set some filters to allow channel and default channel to be adjusted.
+		// TODO: Set a setting field to allow non-technical users change this.
+		
+		/**
+		 * Filters allowed payment channels
+		 * 
+		 * @param int $order_id
+		 * @return array
+		 */		
+		$_channels = apply_filters( 'wc_korapay_allowed_payment_channels', array( 'card', 'bank_transfer' ), $order_id );
+		
+		/**
+		 * Filters allowed payment channels
+		 * 
+		 * @param int $order_id
+		 * @return string
+		 */		
+		$_default_channel = apply_filters( 'wc_korapay_default_payment_channels', array( 'card', 'bank_transfer' ), $order_id );
 
         // Construct params based on documentation.
         $korapay_params = array(
@@ -323,8 +341,8 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
             'redirect_url'       => $callback_url, // $order->get_checkout_order_received_url(),
             'notification_url'   => '', // Webhook URL.
             'narration'          => sprintf( apply_filters( 'wc_korapay_order_narration_text', __( 'Payment for Order #%s', 'wc-korapay' ) ), $order->get_order_number() ),
-            // 'channels'           => array( 'card', 'bank_transfer' ),
-            // 'default_channel'    => '',
+            // 'channels'           => $_channels,
+            // 'default_channel'    => $_default_channel,
             'metadata'           => array(
                 'order_id'      => $order_id,
                 'customer_id'   => $order->get_user_id(),
@@ -347,7 +365,7 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
 
 		if ( is_wp_error( $response ) ) {
 
-            //do_action( 'wc_korapay_redirect_payment_error', $response, $order_id );
+            do_action( 'wc_korapay_redirect_payment_error', $response, $order_id );
 
             wc_add_notice( apply_filters( 'wc_korapay_redirect_payment_error_msg', __( 'Unable to process payment at this time, try again later.', 'woo-korapay' ), $response, $order_id ) , 'error' );
 			return;
@@ -372,7 +390,7 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @return bool
 	 */
-	public function process_token_payment( $token, $order_id ) {
+	public function _process_token_payment( $token, $order_id ) {
 
 	}
 
@@ -505,7 +523,7 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public function process_refund( $order_id, $amount = null, $reason = '' ) {
+	public function _process_refund( $order_id, $amount = null, $reason = '' ) {
         return false;
 
 		if ( ! ( $this->active_public_key && $this->active_secret_key ) ) {

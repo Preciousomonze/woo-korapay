@@ -170,7 +170,7 @@ if ( ! function_exists( 'WC_KORAPAY\\missing_wc_notice' ) ) {
 	}
 }
 
-if ( ! function_exists( 'WC_KORAPAY\\display_proper_msg' ) ) {
+if ( ! function_exists( 'WC_KORAPAY\\display_proper_error' ) ) {
 	/**
 	 * Display messages properly.
 	 * 
@@ -179,14 +179,9 @@ if ( ! function_exists( 'WC_KORAPAY\\display_proper_msg' ) ) {
 	 * @param array  $response
 	 * @param int    $order_id 
 	 */
-	function display_proper_error(  $response, $order_id ) {
-		if (  ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ) {
-			?>
-			<script>
-				const wc_korapay_response = <?php json_encode( $response ); ?>;
-				console.log( { wc_korapay_response } );
-			</script>
-			<?php
+	function display_proper_error( $response, $order_id ) {
+		if (  ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ) {
+			var_dump( $response );
 		}
 	}
 }
