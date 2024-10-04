@@ -192,7 +192,7 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
     public function supported_features() {
         $this->supports = array(
 			'products',
-			// 'refunds',
+			// 'refunds', // TODO
 			// 'tokenization',
 		);
     }
@@ -361,11 +361,11 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
 		$order->save();
 
 		// Call our endpoint.
-        $response = WC_Korapay_API::send_request( 'https://api.koraapi.com/core-middleware/api/v1/charges/initialize', $korapay_params, true );
-
+        $response = WC_Korapay_API::send_request( 'charges/initialize', $korapay_params );
+		var_dump($korapay_params);
 		if ( is_wp_error( $response ) ) {
 
-            do_action( 'wc_korapay_redirect_payment_error', $response, $order_id );
+            do_action( 'wc_korapay_redirect_payment_error', $response, $korapay_params, $order_id );
 
             wc_add_notice( apply_filters( 'wc_korapay_redirect_payment_error_msg', __( 'Unable to process payment at this time, try again later.', 'woo-korapay' ), $response, $order_id ) , 'error' );
 			return;

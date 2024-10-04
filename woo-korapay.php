@@ -9,7 +9,7 @@
  * Text Domain: woo-korapay
  * Domain Path: /languages/
  * WC requires at least: 7.0
- * WC tested up to: 9.0
+ * WC tested up to: 9.3
  */
 
 namespace WC_KORAPAY;
@@ -177,9 +177,10 @@ if ( ! function_exists( 'WC_KORAPAY\\display_proper_error' ) ) {
 	 * Incase of debugging
 	 * 
 	 * @param array  $response
+	 * @param array  $kora_params
 	 * @param int    $order_id 
 	 */
-	function display_proper_error( $response, $order_id ) {
+	function display_proper_error( $response, $kora_params, $order_id ) {
 		if (  ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ) {
 			var_dump( $response );
 		}

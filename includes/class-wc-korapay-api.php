@@ -102,13 +102,9 @@ class WC_Korapay_API {
      * @return array|WP_Error The response from the Kora Pay API or a WP_Error on failure.
      */
     public static function verify_transaction( $transaction_id ) {
-        // Construct the API endpoint for transaction verification.
         $endpoint = 'charges/' . $transaction_id;
-
-        // Send the API request using the send_request method.
         $response = self::send_request( $endpoint, array(), 'GET' );
 
-        // Return the response, which is either the data array or WP_Error.
         return $response;
     }
 
@@ -122,7 +118,6 @@ class WC_Korapay_API {
      * @return array|WP_Error The response from the Kora Pay API or a WP_Error on failure.
      */
     public static function process_refund( $transaction_id, $amount ) {
-        // Construct the API endpoint for processing refunds.
         $endpoint = '/transactions/refund';
 
         // Prepare the request body.
@@ -131,10 +126,8 @@ class WC_Korapay_API {
             'amount'         => $amount,
         );
 
-        // Send the API request using the send_request method.
         $response = self::send_request( $endpoint, $body, 'POST' );
 
-        // Return the response, which is either the data array or WP_Error.
         return $response;
     }
 
