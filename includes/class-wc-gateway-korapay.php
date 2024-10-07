@@ -7,13 +7,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Kora Pay Payment Gateway class.
  *
- * @class    WC_Korapay_Gateway
+ * @class    WC_Gateway_Korapay
  * @extends  WC_Payment_Gateway
  * @version  1.0.0
  * @package  WC_Korapay
  * @category Payment
  */
-class WC_Korapay_Gateway extends \WC_Payment_Gateway {
+class WC_Gateway_Korapay extends \WC_Payment_Gateway {
     
 	/**
 	 * Is test mode active?
@@ -140,7 +140,7 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
 		add_action( 'woocommerce_receipt_' . $this->id, array( $this, 'receipt_content' ) );
 
 		// Payment listener.
-		add_action( 'woocommerce_api_wc_korapay_gateway', array( $this, 'verify_transaction' ) );
+		add_action( 'woocommerce_api_wc_gateway_korapay', array( $this, 'verify_transaction' ) );
 
 		// Webhook listener/API hook.
 		add_action( 'woocommerce_api_wc_korapay_webhook', array( $this, 'process_webhook' ) );
@@ -234,7 +234,7 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
 		$base_location = wc_get_base_location();
 		$url           = \WC_HTTPS::force_https_url( plugins_url( 'assets/images/korapay-' . strtolower( $base_location['country'] ) . '.PNG', WC_KORAPAY_PLUGIN_FILE ) );
 
-		return apply_filters( 'wc_korapay_gateway_icon_url', $url, $this->id );
+		return apply_filters( 'wc_gateway_korapay_icon_url', $url, $this->id );
 	}
 
     /**
@@ -277,7 +277,7 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
 
 		echo '<p>' . __( 'Thank you for your order, please click the button below to pay with Korapay.', 'woo-korapay' ) . '</p>';
 
-		echo '<div id="wc_korapay_form"><form id="order_review" method="post" action="' . WC()->api_request_url( 'WC_Korapay_Gateway' ) . '"></form><button class="button" id="wc-korapay-payment-btn">' . __( 'Pay Now', 'woo-korapay' ) . '</button>';
+		echo '<div id="wc_korapay_form"><form id="order_review" method="post" action="' . WC()->api_request_url( 'WC_Gateway_Korapay' ) . '"></form><button class="button" id="wc-korapay-payment-btn">' . __( 'Pay Now', 'woo-korapay' ) . '</button>';
 
 		if ( ! $this->remove_cancel_order_button ) {
 			echo '  <a class="button cancel" id="wc-korapay-cancel-payment-btn" href="' . esc_url( $order->get_cancel_order_url() ) . '">' . apply_filters( 'wc_korapay_cancel_payment_btn_txt', __( 'Cancel order &amp; restore your cart', 'woo-korapay' ), $order_id ) . '</a></div>';
@@ -315,7 +315,7 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
 		$order        = wc_get_order( $order_id );
 		$amount       = $order->get_total() * 100;
 		$txn_ref      = $order_id . '_' . time();
-		$callback_url = WC()->api_request_url( 'WC_Korapay_Gateway' );
+		$callback_url = WC()->api_request_url( 'WC_Gateway_Korapay' );
 
 		// Let's set some filters to allow channel and default channel to be adjusted.
 		// TODO: Set a setting field to allow non-technical users change this.
@@ -342,7 +342,7 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
             'currency'           => $order->get_currency(),
             'reference'          => $txn_ref,
             'redirect_url'       => $callback_url, // $order->get_checkout_order_received_url(),
-            'notification_url'   => '', // Webhook URL.
+            'notification_url'   => $callback_url,
             'narration'          => sprintf( apply_filters( 'wc_korapay_order_narration_text', __( 'Payment for Order #%s', 'wc-korapay' ) ), $order->get_order_number() ),
             // 'channels'           => $_channels,
             // 'default_channel'    => $_default_channel,
@@ -365,7 +365,7 @@ class WC_Korapay_Gateway extends \WC_Payment_Gateway {
 
 		// Call our endpoint.
         $response = WC_Korapay_API::send_request( 'charges/initialize', $korapay_params );
-		var_dump($korapay_params);
+
 		if ( is_wp_error( $response ) ) {
 
             do_action( 'wc_korapay_redirect_payment_error', $response, $korapay_params, $order_id );

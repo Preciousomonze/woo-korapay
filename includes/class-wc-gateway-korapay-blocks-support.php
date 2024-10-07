@@ -10,14 +10,14 @@ use \Automattic\WooCommerce\StoreApi\Payments\PaymentResult;
 /**
  * Kora Pay Payment Gateway class.
  *
- * @class    WWC_Korapay_Gateway_Blocks_Support
+ * @class    WC_Gateway_Korapaya_Blocks_Support
  * @extends  AbstractPaymentMethodType
  * @version  1.0.0
  * @package  WC_Korapay
  * @category Payment
  */
 
-final class WC_Korapay_Gateway_Blocks_Support extends AbstractPaymentMethodType {
+final class WC_Gateway_Korapay_Blocks_Support extends AbstractPaymentMethodType {
 
 	/**
 	 * Payment method name/id/slug.
@@ -36,12 +36,12 @@ final class WC_Korapay_Gateway_Blocks_Support extends AbstractPaymentMethodType 
 	}
 
 	/**
-	 * Returns if this payment method should be active. If false, the scripts will not be enqueued.
+	 * Returns if this payment method should be active. If false, scripts will not be enqueued.
 	 *
 	 * @return boolean
 	 */
 	public function is_active() {
-		$payment_gateways_class = WC()->payment_gateways();
+		$payment_gateways_class = \WC()->payment_gateways();
 		$payment_gateways       = $payment_gateways_class->payment_gateways();
 		return $payment_gateways[ $this->name ]->is_available();
 	}
@@ -83,7 +83,7 @@ final class WC_Korapay_Gateway_Blocks_Support extends AbstractPaymentMethodType 
 	 * @return array
 	 */
 	public function get_payment_method_data() {
-		$payment_gateways_class = WC()->payment_gateways();
+		$payment_gateways_class = \WC()->payment_gateways();
 		$payment_gateways       = $payment_gateways_class->payment_gateways();
 		$gateway                = $payment_gateways[ $this->name ];
 
@@ -104,7 +104,7 @@ final class WC_Korapay_Gateway_Blocks_Support extends AbstractPaymentMethodType 
 	public function failed_payment_notice( PaymentContext $context, PaymentResult &$result ) {
 		if ( $this->name === $context->payment_method ) {
 			add_action(
-				'wc_korapay_gateway_process_payment_error',
+				'wc_gateway_korapay_process_payment_error',
 				function( $failed_notice ) use ( &$result ) {
 					$payment_details                 = $result->payment_details;
 					$payment_details['errorMessage'] = wp_strip_all_tags( $failed_notice );

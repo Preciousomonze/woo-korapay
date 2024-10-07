@@ -23,7 +23,7 @@ define( 'WC_KORAPAY_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WC_KORAPAY_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 
-if ( ! function_exists( 'WC_KORAPAY\\wc_korapay_gateway_init' ) ) {
+if ( ! function_exists( 'WC_KORAPAY\\wc_gateway_korapay_init' ) ) {
     /**
      * Initialize the Kora Pay payment gateway.
      *
@@ -31,7 +31,7 @@ if ( ! function_exists( 'WC_KORAPAY\\wc_korapay_gateway_init' ) ) {
      *
      * @return void
      */
-    function wc_korapay_gateway_init() {
+    function wc_gateway_korapay_init() {
         // Ensure WooCommerce is active before proceeding.
         if ( ! class_exists( 'WooCommerce' ) || ! class_exists( 'WC_Payment_Gateway' ) ) {
 			add_action( 'admin_notices', 'WC_KORAPAY\\missing_wc_notice' );
@@ -39,7 +39,7 @@ if ( ! function_exists( 'WC_KORAPAY\\wc_korapay_gateway_init' ) ) {
         }
 
         // Include the necessary classes for the payment gateway.
-        require_once WC_KORAPAY_PLUGIN_DIR . '/includes/class-wc-korapay-gateway.php';
+        require_once WC_KORAPAY_PLUGIN_DIR . '/includes/class-wc-gateway-korapay.php';
         require_once WC_KORAPAY_PLUGIN_DIR . '/includes/class-wc-korapay-api.php';
         require_once WC_KORAPAY_PLUGIN_DIR . '/includes/admin/class-wc-korapay-settings.php';
         
@@ -47,7 +47,7 @@ if ( ! function_exists( 'WC_KORAPAY\\wc_korapay_gateway_init' ) ) {
         add_filter( 'woocommerce_payment_gateways', 'WC_KORAPAY\\add_gateway_class' );
     }
 }
-add_action( 'plugins_loaded', 'WC_KORAPAY\\wc_korapay_gateway_init', 11 );
+add_action( 'plugins_loaded', 'WC_KORAPAY\\wc_gateway_korapay_init', 11 );
 
 
 if ( ! function_exists( 'WC_KORAPAY\\load_plugin_textdomain' ) ) {
@@ -72,7 +72,7 @@ if ( ! function_exists( 'WC_KORAPAY\\add_gateway_class' ) ) {
      * @return array Modified array of payment gateway classes including Kora Pay.
      */
     function add_gateway_class( $gateways ) {
-        $gateways[] = 'WC_KORAPAY\\WC_Korapay_Gateway';
+        $gateways[] = 'WC_KORAPAY\\WC_Gateway_Korapay';
         return $gateways;
     }
 }
@@ -127,7 +127,7 @@ if ( ! function_exists( 'WC_KORAPAY\\korapay_wc_block_support' ) ) {
 		add_action(
 			'woocommerce_blocks_payment_method_type_registration',
 			static function( \Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry ) {
-				$payment_method_registry->register( new WC_Korapay_Gateway_Blocks_Support() );
+				$payment_method_registry->register( new WC_Gateway_Korapay_Blocks_Support() );
 			}
 		);
 	}
@@ -182,8 +182,9 @@ if ( ! function_exists( 'WC_KORAPAY\\display_proper_error' ) ) {
 	 */
 	function display_proper_error( $response, $kora_params, $order_id ) {
 		if (  ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ) {
-			var_dump( $response );
+			$s = WC()->payment_gateways();
+			var_dump( $response, $kora_params, $s );
 		}
 	}
 }
-add_action( 'wc_korapay_redirect_payment_error', 'WC_KORAPAY\\display_proper_error', 10, 2 );
+add_action( 'wc_korapay_redirect_payment_error', 'WC_KORAPAY\\display_proper_error', 10, 3 );
