@@ -354,11 +354,11 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
                 'email' => $order->get_billing_email(),
                 'name'  => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
             ),
-			'metadata'           => array( // Once length exceeds 50 Chars, causes issues.
-            //    'meta_order_id'      => $order_id,
-            //    'meta_customer_id'   => $order->get_user_id(),
-                //'meta_cancel_action' => wc_get_cart_url(),
-            ),
+			/*'metadata'           => array( // Once length exceeds 50 Chars, causes issues.
+                'meta_order_id'      => $order_id,
+                'meta_customer_id'   => $order->get_user_id(),
+                'meta_cancel_action' => wc_get_cart_url(),
+            ),*/
             // 'merchant_bears_cost' => true, // TODO
         );
 
@@ -375,7 +375,11 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
             do_action( 'wc_korapay_redirect_payment_error', $response, $korapay_params, $order_id );
 
             wc_add_notice( apply_filters( 'wc_korapay_redirect_payment_error_msg', __( 'Unable to process payment at this time, try again later.', 'woo-korapay' ), $response, $order_id ) , 'error' );
-			return;
+
+			return array(
+				'result'   => 'fail',
+				'redirect' => '',
+			);;
         }
 
         // All good! Let's empty cart and proceed.
@@ -383,7 +387,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
 		return array(
 			'result'   => 'success',
-			'redirect' => $response->data->authorization_url,
+			'redirect' => $response->data->checkout_url,
 		);
     }
 
