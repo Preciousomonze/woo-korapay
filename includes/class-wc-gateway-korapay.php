@@ -249,6 +249,10 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		}
 		?>
 		</h2>
+		<h4>
+			<strong><?php printf( __( 'Optional: To avoid stories that touch in situations where bad network makes it impossible to verify transactions, set your webhook URL <a href="%1$s" target="_blank" rel="noopener noreferrer">here</a> to the URL below<span style="color: red"><pre><code>%2$s</code></pre></span>', 'woo-korapay' ), 'https://merchant.korapay.com/dashboard/settings/api-integrations', WC()->api_request_url( 'WC_Korapay_Webhook' ) ); ?></strong>
+		</h4>
+
 
 		<?php
 		if ( $this->is_valid_for_use() ) {
@@ -334,26 +338,26 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		 * @param int $order_id
 		 * @return string
 		 */		
-		$_default_channel = apply_filters( 'wc_korapay_default_payment_channels', array( 'card', 'bank_transfer' ), $order_id );
+		$_default_channel = apply_filters( 'wc_korapay_default_payment_channels', 'card', $order_id );
 
         // Construct params based on documentation.
         $korapay_params = array(
             'amount'             => absint( $amount ),
             'currency'           => $order->get_currency(),
             'reference'          => $txn_ref,
-            'redirect_url'       => $callback_url, // $order->get_checkout_order_received_url(),
+            'redirect_url'       => $order->get_checkout_order_received_url(),
             'notification_url'   => $callback_url,
             'narration'          => sprintf( apply_filters( 'wc_korapay_order_narration_text', __( 'Payment for Order #%s', 'wc-korapay' ) ), $order->get_order_number() ),
-            // 'channels'           => $_channels,
-            // 'default_channel'    => $_default_channel,
-            'metadata'           => array(
-                'order_id'      => $order_id,
-                'customer_id'   => $order->get_user_id(),
-                'cancel_action' => wc_get_cart_url(),
-            ),
+            'channels'           => $_channels,
+            'default_channel'    => $_default_channel,
             'customer'           => array(
                 'email' => $order->get_billing_email(),
                 'name'  => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
+            ),
+			'metadata'           => array(
+                'meta_order_id'      => $order_id,
+                'meta_customer_id'   => $order->get_user_id(),
+                'meta_cancel_action' => wc_get_cart_url(),
             ),
             // 'merchant_bears_cost' => true, // TODO
         );

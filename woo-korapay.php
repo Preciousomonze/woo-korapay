@@ -122,7 +122,7 @@ if ( ! function_exists( 'WC_KORAPAY\\korapay_wc_block_support' ) ) {
 	 */
 	function korapay_wc_block_support() {
 		// if ( class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) { }
-		require_once WC_KORAPAY_PLUGIN_DIR . '/includes/class-wc-korapay-gateway-blocks-support.php';
+		require_once WC_KORAPAY_PLUGIN_DIR . '/includes/class-wc-gateway-korapay-blocks-support.php';
 
 		add_action(
 			'woocommerce_blocks_payment_method_type_registration',
@@ -183,7 +183,8 @@ if ( ! function_exists( 'WC_KORAPAY\\display_proper_error' ) ) {
 	function display_proper_error( $response, $kora_params, $order_id ) {
 		if (  ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ) {
 			$s = WC()->payment_gateways();
-			var_dump( $response, $kora_params, $s );
+			var_dump( $response, $kora_params );
+			//var_dump($kora_params);
 		}
 	}
 }
