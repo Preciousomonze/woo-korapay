@@ -183,7 +183,7 @@ if ( ! function_exists( 'WC_KORAPAY\\display_proper_error' ) ) {
 	function display_proper_error( $response, $kora_params, $order_id ) {
 		if (  ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ) {
 			$s = WC()->payment_gateways();
-			var_dump( $response, $kora_params );
+			var_dump( $response->error_data['korapay_api_failed']['data'], $kora_params );
 			//var_dump($kora_params);
 		}
 	}

@@ -357,7 +357,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 			'metadata'           => array(
                 'meta_order_id'      => $order_id,
                 'meta_customer_id'   => $order->get_user_id(),
-                'meta_cancel_action' => wc_get_cart_url(),
+                //'meta_cancel_action' => wc_get_cart_url(),
             ),
             // 'merchant_bears_cost' => true, // TODO
         );

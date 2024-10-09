@@ -92,7 +92,7 @@ class WC_Korapay_API {
         }
 
         // Return an error if the API call failed.
-        return new \WP_Error( 'korapay_api_failed', __( 'API call to Kora Pay failed.', 'woo-korapay' ), $data );
+        return new \WP_Error( 'korapay_api_failed', __( 'Omo! API call to Kora Pay failed.', 'woo-korapay' ), $data );
     }
 
     /**
