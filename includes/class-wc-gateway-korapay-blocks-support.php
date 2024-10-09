@@ -30,7 +30,7 @@ final class WC_Gateway_Korapay_Blocks_Support extends AbstractPaymentMethodType 
 	 * Initializes the payment method type.
 	 */
 	public function initialize() {
-		$this->settings = get_option( 'woocommerce_korapay_settings', array() );//get_option( 'woocommerce_' . $this->name . '_settings', array() );
+		$this->settings = get_option( 'woocommerce_' . $this->name . '_settings', array() );
 
 		add_action( 'woocommerce_rest_checkout_process_payment_with_context', array( $this, 'failed_payment_notice' ), 8, 2 );
 	}
@@ -43,7 +43,7 @@ final class WC_Gateway_Korapay_Blocks_Support extends AbstractPaymentMethodType 
 	public function is_active() {
 		$payment_gateways_class = \WC()->payment_gateways();
 		$payment_gateways       = $payment_gateways_class->payment_gateways();
-		return $payment_gateways['korapay']->is_available(); // $payment_gateways[ $this->name ]->is_available();
+		return $payment_gateways[ $this->name ]->is_available();
 	}
 
 	/**

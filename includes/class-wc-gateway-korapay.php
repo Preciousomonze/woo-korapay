@@ -354,9 +354,9 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
                 'email' => $order->get_billing_email(),
                 'name'  => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
             ),
-			'metadata'           => array(
-                'meta_order_id'      => $order_id,
-                'meta_customer_id'   => $order->get_user_id(),
+			'metadata'           => array( // Once length exceeds 50 Chars, causes issues.
+            //    'meta_order_id'      => $order_id,
+            //    'meta_customer_id'   => $order->get_user_id(),
                 //'meta_cancel_action' => wc_get_cart_url(),
             ),
             // 'merchant_bears_cost' => true, // TODO
