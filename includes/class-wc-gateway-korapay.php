@@ -299,6 +299,8 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	 * @return array|void
 	 */
 	public function process_payment( $order_id ) {
+		//var_dump( $this->payment_page_type );
+
 		if ( 'redirect' === $this->payment_page_type ) { // It will always be redirect, for now.
 			return $this->process_redirect_payment( $order_id );
 		}
@@ -317,8 +319,8 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	 */
 	public function process_redirect_payment( $order_id ) {
 		$order        = wc_get_order( $order_id );
-		$amount       = $order->get_total() * 100;
-		$txn_ref      = $order_id . '_' . time();
+		$amount       = $order->get_total(); // * 100;
+		$txn_ref      = 'wc_kp_' . $order_id . '_' . time();
 		$callback_url = WC()->api_request_url( 'WC_Gateway_Korapay' );
 
 		// Let's set some filters to allow channel and default channel to be adjusted.
@@ -383,11 +385,11 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
         }
 
         // All good! Let's empty cart and proceed.
-        WC()->cart->empty_cart();
+        //WC()->cart->empty_cart();
 
 		return array(
 			'result'   => 'success',
-			'redirect' => $response->data->checkout_url,
+			'redirect' => $response['data']['checkout_url'],
 		);
     }
 
@@ -434,7 +436,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 			exit;
         }
 
-        if ( 'success' !== $response->data->status ) {
+        if ( 'success' !== $response['data']['status'] ) {
             // Note: gives an overview status of the transaction ie. was the payment made successfully or not. It can be success, pending, processing, expired or failed.
             $order->update_status( 'failed', __( 'Payment was declined by Korapay.', 'woo-korapay' ) );
         } else {
