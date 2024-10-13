@@ -23,6 +23,19 @@ define( 'WC_KORAPAY_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WC_KORAPAY_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 
+if ( ! function_exists( 'WC_KORAPAY\\load_plugin_textdomain' ) ) {
+	/**
+	 * Load Localisation files.
+	 *
+	 * @since  1.0.0
+	 */
+	function load_textdomain() {
+		load_plugin_textdomain( 'wc-korapay', false, plugin_basename( dirname( WC_KORAPAY_PLUGIN_FILE ) ) . '/languages' );
+	}
+}
+add_action( 'plugins_loaded', 'WC_KORAPAY\\load_textdomain' );
+
+
 if ( ! function_exists( 'WC_KORAPAY\\wc_gateway_korapay_init' ) ) {
     /**
      * Initialize the Kora Pay payment gateway.
@@ -48,20 +61,6 @@ if ( ! function_exists( 'WC_KORAPAY\\wc_gateway_korapay_init' ) ) {
     }
 }
 add_action( 'plugins_loaded', 'WC_KORAPAY\\wc_gateway_korapay_init', 11 );
-
-
-if ( ! function_exists( 'WC_KORAPAY\\load_plugin_textdomain' ) ) {
-
-	/**
-	 * Load Localisation files.
-	 *
-	 * @since  1.0.0
-	 */
-	function load_textdomain() {
-		load_plugin_textdomain( 'wc-korapay', false, plugin_basename( dirname( WC_KORAPAY_PLUGIN_FILE ) ) . '/languages' );
-	}
-}
-add_action( 'plugins_loaded', 'WC_KORAPAY\\load_textdomain' );
 
 
 if ( ! function_exists( 'WC_KORAPAY\\add_gateway_class' ) ) {
