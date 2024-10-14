@@ -117,7 +117,6 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
     public function __construct() {
         $this->id                 = 'korapay';
         $this->icon               = ''; // URL to the icon that will be displayed on checkout. TODO
-        $this->has_fields         = false;
         $this->method_title       = __( 'Korapay', 'woo-korapay' );
         $this->method_description = sprintf( __( 'Accept online payments from local and international customers using Mastercard, Visa, Verve Cards and Bank Accounts. <a href="%1$s" target="_blank">Sign up</a> for a Kora account, and <a href="%2$s" target="_blank">get your API keys</a>.', 'woo-korapay' ), 'https://korahq.com', 'https://merchant.korapay.com/dashboard/settings/api-integrations' );
         
@@ -311,6 +310,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		$amount       = $order->get_total();
 		$txn_ref      = 'kp_' . $order_id . '_' . time();
 		$callback_url = WC()->api_request_url( 'WC_Gateway_Korapay' );
+		$redirect_url = $order->get_checkout_order_received_url() . '&korapay_txnref=' . $txn_ref . '&';
 
 		// Let's set some filters to allow channel and default channel to be adjusted.
 		// TODO: Set a setting field to allow non-technical users change this(not necessary).
@@ -330,13 +330,15 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		 * @return string
 		 */		
 		$_default_channel = apply_filters( 'wc_korapay_default_payment_channels', 'card', $order_id );
-
+		//var_dump($redirect_url);
+		//var_dump($this->get_return_url( $order ));
+		//exit;
         // Construct params based on documentation.
         $korapay_params = array(
             'amount'             => absint( $amount ),
             'currency'           => $order->get_currency(),
             'reference'          => $txn_ref,
-            'redirect_url'       => $order->get_checkout_order_received_url(),
+            'redirect_url'       => $redirect_url,
             'notification_url'   => $callback_url,
             'narration'          => sprintf( apply_filters( 'wc_korapay_order_narration_text', __( 'Payment for Order #%s', 'wc-korapay' ) ), $order->get_order_number() ),
             'channels'           => $_channels,
@@ -403,7 +405,14 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	 * Let's avoid stories that touch abeg.
      */
     public function handle_transaction_verifaction() {
-        $txn_ref = isset( $_REQUEST['reference'] ) ? sanitize_text_field( $_REQUEST['reference'] ) : false;
+		if ( isset( $_REQUEST['korapay_txnref'] ) ) {
+			$txn_ref = sanitize_text_field( $_REQUEST['korapay_txnref'] );
+		} elseif ( isset( $_REQUEST['reference'] ) ) {
+			$txn_ref = sanitize_text_field( $_REQUEST['reference'] );
+		} else {
+			$txn_ref = false;
+		}
+        
 		var_dump($txn_ref);
 		exit;
 		@ob_clean();
