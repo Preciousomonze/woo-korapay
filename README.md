@@ -1,7 +1,7 @@
 # Korapay WooCommerce Payment Gateway
 
-**Contributors:** Precious Omonzejele  
-**Tags:** payment gateway, WooCommerce, Korapay, e-commerce, debit card, mobile money, African payments  
+**Contributors:**  Korapay
+**Tags:** payment gateway, WooCommerce, Korapay, e-commerce, African payments  
 **Requires at least:** 5.0  
 **Tested up to:** 6.3  
 **Stable tag:** 1.0  
@@ -61,7 +61,7 @@ Simply toggle **Test Mode** in the Korapay settings, and use the test API keys p
 
 ### What do I need to use this plugin?
 
-* A Korapay merchant account. [Sign up here](https://korapay.com/signup) if you don’t have one.
+* A Korapay merchant account. [Sign up here](https://merchant.korapay.com/auth/signup) if you don’t have one.
 * An active [WooCommerce installation](https://woocommerce.com/).
 * A valid SSL certificate for secure payments.
 
