@@ -330,11 +330,8 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		 * @return string
 		 */		
 		$_default_channel = apply_filters( 'wc_korapay_default_payment_channels', 'card', $order_id );
-		//var_dump($redirect_url);
-		//var_dump($this->get_return_url( $order ));
-		//exit;
-        // Construct params based on documentation.
-        $korapay_params = array(
+
+		$korapay_params = array(
             'amount'             => absint( $amount ),
             'currency'           => $order->get_currency(),
             'reference'          => $txn_ref,
@@ -360,8 +357,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		$order->update_meta_data( '_korapay_txn_ref', $txn_ref );
 		$order->save();
 
-		// Call our endpoint.
-        $response = WC_Korapay_API::send_request( 'charges/initialize', $korapay_params );
+		$response = WC_Korapay_API::send_request( 'charges/initialize', $korapay_params );
 
 		if ( is_wp_error( $response ) ) {
 
@@ -372,7 +368,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 			return array(
 				'result'   => 'fail',
 				'redirect' => '',
-			);;
+			);
         }
 
         // All good! Let's empty cart and proceed.
@@ -387,7 +383,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	/**
 	 * Process a token payment.
 	 *
-     * @TODO
+     * @TODO - not necessary.
      * 
 	 * @param $token
 	 * @param $order_id
@@ -415,7 +411,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
         
 		var_dump($txn_ref);
 		exit;
-		@ob_clean();
+		//@ob_clean();
 
         if ( ! $txn_ref ) { // No transaction reference.
             wp_redirect( wc_get_page_permalink( 'cart' ) );
@@ -747,8 +743,8 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	 */
 	public function is_valid_for_use() {
 
-		if ( ! in_array( get_woocommerce_currency(), apply_filters( 'wc_korapay_supported_currencies', array( 'NGN', 'USD', 'GHS' ) ) ) ) {
-			$this->msg = sprintf( __( 'Sorry, Korapay does not support your store currency. Kindly set it to either NGN (&#8358), GHS (&#x20b5;), USD (&#36;), KES (KSh), RWF (R₣) <a href="%s">here</a>', 'woo-korapay' ), admin_url( 'admin.php?page=wc-settings&tab=general' ) );
+		if ( ! in_array( get_woocommerce_currency(), apply_filters( 'wc_korapay_supported_currencies', array( 'NGN', 'USD', 'GHS', 'KES' ) ) ) ) {
+			$this->msg = sprintf( __( 'Sorry, Korapay does not support your store currency. Kindly set it to either NGN (&#8358), GHS (&#x20b5;), USD (&#36;), or KES (KSh) <a href="%s">here</a>', 'woo-korapay' ), admin_url( 'admin.php?page=wc-settings&tab=general' ) );
 			return false;
 		}
 
