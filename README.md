@@ -1,7 +1,7 @@
 # Korapay WooCommerce Payment Gateway
 
 **Contributors:** Precious Omonzejele  
-**Tags:** payment gateway, WooCommerce, Kora Pay, e-commerce, debit card  
+**Tags:** payment gateway, WooCommerce, Korapay, e-commerce, debit card, mobile money, African payments  
 **Requires at least:** 5.0  
 **Tested up to:** 6.3  
 **Stable tag:** 1.0  
@@ -10,54 +10,85 @@
 
 ## Description
 
-The **Kora Pay WooCommerce Payment Gateway** plugin provides an effortless way for merchants to accept payments via Kora Pay. Whether it's debit cards, bank transfers, or mobile money, Kora Pay offers flexible payment options for your customers.
+The **Korapay WooCommerce Payment Gateway** allows you to accept payments directly on your WooCommerce store using Mastercard, Visa, Verve, Mobile Money, Bank Transfer, and more, making it perfect for businesses looking to reach customers across Africa. 
 
-With a quick setup and seamless integration into your WooCommerce store, you'll be ready to accept payments from all over the world in no time. Plus, you can easily manage transaction refunds and verifications directly from your WooCommerce dashboard.
+Get up and running in minutes with Korapay's easy integration. Whether it's secure card payments or mobile money transactions, your store can effortlessly manage them all!
 
-### Key Features:
-- Accept payments through Kora Pay (Debit cards, Bank transfers, Mobile money).
-- Test mode and live mode options.
-- Set your preferred payment methods (Card, Bank Transfer, etc.).
-- Automatically handle refunds and transaction verification.
-- Easy-to-use configuration panel in WooCommerce settings.
+### Plugin Features:
+* **Accept payments** via Mastercard, Visa, Verve, USSD, Mobile Money, Bank Transfer, EFT, and more.
+* **Multiple currency support**, particularly for payments in Nigerian Naira (NGN), Ghanaian Cedi (GHS), and Kenyan Shilling (KES).
+* **Seamless integration** with WooCommerce checkout — customers can pay right on your site.
+* **Test mode** for easy testing before going live.
+
+## Note  
+This plugin is designed for merchants operating in 🇬🇭 Ghana, 🇰🇪 Kenya, and 🇳🇬 Nigeria. 
 
 ## Installation
 
-1. Download the plugin zip file and upload it to your `/wp-content/plugins/` directory, or install it directly from your WordPress admin by going to **Plugins > Add New** and searching for "Kora Pay WooCommerce Gateway."
-2. Activate the plugin via the 'Plugins' menu in WordPress.
-3. Go to **WooCommerce > Settings > Payments** and configure the Kora Pay settings.
+1. Go to **WordPress Admin** > **Plugins** > **Add New** from the left-hand menu.
+2. In the search box, type **Korapay WooCommerce Payment Gateway**.
+3. Click **Install Now** when you find **Korapay WooCommerce Payment Gateway**.
+4. After installation, **activate** the plugin.
 
-## Screenshots
+## Korapay Setup and Configuration
 
-1. **Kora Pay Payment Gateway Settings Page.**  
-   ![Settings Screenshot Placeholder](https://via.placeholder.com/800x400)
+1. Go to **WooCommerce > Settings** and click on the **Payments** tab.
+2. You will see **Korapay** listed with other payment methods. Click **Set Up** to configure the plugin.
+3. On the configuration page, you'll find several options to adjust:
 
-2. **Customer Checkout Experience using Kora Pay.**  
-   ![Checkout Screenshot Placeholder](https://via.placeholder.com/800x400)
+    1. **Enable/Disable**: Check this box to enable Korapay on your store’s checkout page.
+    2. **Title**: This title appears on the payment options during checkout (default: "Korapay").
+    3. **Description**: Add a custom description under the payment fields, guiding customers on the available payment methods.
+    4. **Test Mode**: Toggle this to enable test mode, allowing you to use Korapay's test API keys for payment simulation.
+    5. **Payment Page Type**: Choose whether the customer stays on your site (Popup) or gets redirected for payment (Redirect).
+    6. **API Keys**: Input your API keys—either live or test keys depending on your test mode selection. You can retrieve these from your Korapay dashboard.
+    7. **Additional Settings**: Optional settings such as adding custom metadata for transactions or configuring the Webhook URL for seamless order status updates.
 
-3. **WooCommerce Order Page showing Kora Pay Transactions.**  
-   ![Order Screenshot Placeholder](https://via.placeholder.com/800x400)
+4. After configuring your settings, click **Save Changes** to apply.
+
+### Webhook Setup:
+To avoid network issues from affecting order updates, we recommend setting up a Webhook URL. This will ensure that your store is notified when payments are completed. You can copy the Webhook URL provided on the settings page and paste it into your Korapay dashboard under **Settings > API Keys & Webhooks**.
 
 ## Frequently Asked Questions
 
-### What currencies are supported by Kora Pay?
+### What currencies are supported?
 
-Kora Pay supports several currencies, including NGN, KES, GHS, and more.
+Korapay supports several African currencies, including Nigerian Naira (NGN), Ghanaian Cedi (GHS), and Kenyan Shilling (KES).
 
-### How do I test the payment gateway?
+### How do I test Korapay before going live?
 
-You can switch between test and live mode in the Kora Pay settings. Use your test API keys provided by Kora Pay to simulate transactions in test mode.
+Simply toggle **Test Mode** in the Korapay settings, and use the test API keys provided by Korapay to simulate transactions. This allows you to ensure everything works smoothly before accepting real payments.
 
-### Can I refund a transaction through WooCommerce?
+### What do I need to use this plugin?
 
-Yes, you can process refunds directly from the WooCommerce orders page, and the plugin will communicate with the Kora Pay API to process the refund.
+* A Korapay merchant account. [Sign up here](https://korapay.com/signup) if you don’t have one.
+* An active [WooCommerce installation](https://woocommerce.com/).
+* A valid SSL certificate for secure payments.
 
+### Why can’t I see Korapay in the checkout?
+
+Please make sure that you’ve enabled Korapay in the WooCommerce settings and correctly entered your API keys. Also, ensure that the settings have been saved.
+
+## Screenshots
+
+1. **Korapay Payment Gateway Settings Page.**  
+   ![Settings Screenshot Placeholder](https://via.placeholder.com/800x400)
+
+2. **Customer Checkout Experience using Korapay.**  
+   ![Checkout Screenshot Placeholder](https://via.placeholder.com/800x400)
+
+3. **WooCommerce Order Page showing Korapay Transactions.**  
+   ![Order Screenshot Placeholder](https://via.placeholder.com/800x400)
 
 ## Upgrade Notice
 
 ### 1.0
-* First version - no upgrades yet.
+* Initial release of Korapay WooCommerce Payment Gateway.
 
 ## License
 
 This plugin is licensed under the GPLv2 or later. [Learn more about GPL](https://www.gnu.org/licenses/gpl-2.0.html).
+
+<!-- Commenting out refund functionality for future use -->
+<!-- ### Can I manage refunds via the WooCommerce dashboard?  
+Yes! The Korapay gateway allows you to process refunds directly from your WooCommerce orders page. Refunds are processed through the Korapay API and updated in your store. -->
