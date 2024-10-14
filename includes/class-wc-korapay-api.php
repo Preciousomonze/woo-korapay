@@ -7,12 +7,12 @@ defined( 'ABSPATH' ) || exit;
 /**
  * WC_Korapay_API class.
  *
- * Handles communication with the Kora Pay API, including transaction verification and refunds.
+ * Handles communication with the Korapay API, including transaction verification and refunds.
  */
 class WC_Korapay_API {
 
     /**
-     * The API base URL for Kora Pay.
+     * The API base URL for Korapay.
      *
      * @var string
      */
@@ -57,7 +57,7 @@ class WC_Korapay_API {
     }
 
     /**
-     * Send a request to the Kora Pay API.
+     * Send a request to the Korapay API.
      *
      * @param string $endpoint The API endpoint to call.
      * @param array $body The request body to send.
@@ -92,14 +92,14 @@ class WC_Korapay_API {
         }
 
         // Return an error if the API call failed.
-        return new \WP_Error( 'korapay_api_failed', __( 'Omo! API call to Kora Pay failed.', 'woo-korapay' ), $data );
+        return new \WP_Error( 'korapay_api_failed', __( 'Omo! API call to Korapay failed.', 'woo-korapay' ), $data );
     }
 
     /**
-     * Verify a transaction with the Kora Pay API.
+     * Verify a transaction with the Korapay API.
      *
      * @param string $transaction_id The ID of the transaction to verify.
-     * @return array|WP_Error The response from the Kora Pay API or a WP_Error on failure.
+     * @return array|WP_Error The response from the Korapay API or a WP_Error on failure.
      */
     public static function verify_transaction( $transaction_id ) {
         $endpoint = 'charges/' . $transaction_id;
@@ -109,13 +109,13 @@ class WC_Korapay_API {
     }
 
     /**
-     * Process a refund with the Kora Pay API.
+     * Process a refund with the Korapay API.
      *
-     * This method sends a request to the Kora Pay API to process a refund.
+     * This method sends a request to the Korapay API to process a refund.
      *
      * @param string $transaction_id The ID of the transaction to refund.
      * @param float $amount The amount to refund.
-     * @return array|WP_Error The response from the Kora Pay API or a WP_Error on failure.
+     * @return array|WP_Error The response from the Korapay API or a WP_Error on failure.
      */
     public static function process_refund( $transaction_id, $amount ) {
         $endpoint = '/transactions/refund';
