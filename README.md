@@ -1,6 +1,6 @@
 # Korapay WooCommerce Payment Gateway
 
-**Contributors:**  Korapay
+**Contributors:** Korapay
 **Tags:** payment gateway, WooCommerce, Korapay, e-commerce, African payments  
 **Requires at least:** 5.0  
 **Tested up to:** 6.3  
