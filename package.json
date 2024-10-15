@@ -5,7 +5,7 @@
     "scripts": {
         "build:scripts": "wp-scripts build",
         "start:scripts": "wp-scripts start",
-        "makepot": "npx @wp-blocks/make-pot ./ ./languages/woo-korapay.pot --domain woo-korapay",
+        "makepot": "npx @wp-blocks/make-pot ./ ./languages/ --domain woo-korapay",
         "compress-zip": "sh compress-zip-offload.sh -c",
         "offload-zip": "sh compress-zip-offload.sh -o",
         "compress-zip-offload": "npm run compress-zip && npm run offload-zip"
