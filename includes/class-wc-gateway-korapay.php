@@ -314,7 +314,6 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		$webhook_url  = WC()->api_request_url( 'wc_korapay_webhook' );
 		$redirect_url = WC()->api_request_url( 'wc_gateway_korapay' );
 
-		// Let's set some filters to allow channel and default channel to be adjusted.
 		// TODO: Set a setting field to allow non-technical users change this(not necessary).
 		
 		/**
@@ -373,8 +372,8 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 			);
         }
 
-        // All good! Let's empty cart and proceed.
-        //WC()->cart->empty_cart();
+        // All good! Empty cart and proceed.
+        WC()->cart->empty_cart();
 
 		return array(
 			'result'   => 'success',
@@ -410,10 +409,8 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		} else {
 			$txn_ref = false;
 		}
-        
-		var_dump($txn_ref);
-		//exit;
-		//@ob_clean(); // Inspo from Tubiz :).
+
+		@ob_clean(); // Inspo from Tubiz :).
 
         if ( ! $txn_ref ) { // No transaction reference.
             wp_redirect( wc_get_page_permalink( 'cart' ) );
@@ -425,10 +422,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
         $order_id      = (int) $order_details[1];
         $order         = wc_get_order( $order_id );
 
-        // Call our endpoint.
         $response = WC_Korapay_API::verify_transaction( $txn_ref );
-
-		var_dump($response);
 		
         if ( is_wp_error( $response ) || false === $response['status'] ) { // An issue occured.
 			$order->update_status( 'failed', __( 'An error occurred while verifying payment on Korapay.', 'woo-korapay' ) );
@@ -440,7 +434,6 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
             // Note: gives an overview status of the transaction ie. was the payment made successfully or not. It can be success, pending, processing, expired or failed.
             $order->update_status( 'failed', __( 'Payment was declined by Korapay.', 'woo-korapay' ) );
         } else {
-            // TODO: Check if the reference and order id are speaking same language.
             if ( in_array( $order->get_status(), array( 'processing', 'completed', 'on-hold' ) ) ) {
                 wp_redirect( $this->get_return_url( $order ) );
                 exit;
@@ -449,14 +442,12 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
             $order_total      = $order->get_total();
             $order_currency   = $order->get_currency();
             $currency_symbol  = get_woocommerce_currency_symbol( $order_currency );
-            $amount_paid      = $response['data']['amount'] / 100;
+            $amount_paid      = $response['data']['amount'];
             $korapay_ref      = $response['data']['reference'];
             $payment_currency = strtoupper( $response['data']['currency'] );
             $gateway_symbol   = get_woocommerce_currency_symbol( $payment_currency );
-			var_dump($amount_paid);
-			exit;
-            //  Is amount paid equal to the order amount?
-            if ( $amount_paid < absint( $order_total ) ) {
+
+			if ( $amount_paid < absint( $order_total ) ) {
 
                 $order->update_status( 'on-hold', '' );
 
@@ -501,7 +492,27 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
                     wc_add_notice( $notice, $notice_type );
 
-                } else {
+                } elseif ( $korapay_ref !== $order->get_meta( '_korapay_txn_ref' ) ) { // If this isn't same, something was tampered with.
+
+                    $order->update_status( 'on-hold', '' );
+
+                    $order->update_meta_data( '_transaction_id', $korapay_ref );
+
+                    $notice      = sprintf( __( 'Thank you for shopping with us.%1$sYour payment was successful, but transaction reference comparison seems differnet.%2$sYour order is currently on-hold.%3$sKindly contact us for more information regarding your order and payment status.', 'woo-korapay' ), '<br />', '<br />', '<br />' );
+                    $notice_type = 'notice';
+
+                    // Add Customer Order Note.
+                    $order->add_order_note( $notice, 1 );
+
+                    // Add Admin Order Note.
+                    $admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Transaction reference comparison failed.%3$sOrder Transaction reference is <strong>%4$s</strong> while the transaction reference from korapay is <strong>%5$s</strong>%6$s<strong>Korapay Transaction Reference:</strong> %7$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $order->get_meta( '_korapay_txn_ref' ), $korapay_ref, '<br />', $korapay_ref );
+                    $order->add_order_note( $admin_order_note );
+
+                    function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order_id ) : $order->reduce_order_stock();
+
+                    wc_add_notice( $notice, $notice_type );
+
+				} else {
 
                     $order->payment_complete( $korapay_ref );
                     $order->add_order_note( sprintf( __( 'Payment via Korapay successful! (Transaction Reference: %s)', 'woo-korapay' ), $korapay_ref ) );
@@ -512,12 +523,9 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
                 }
             }
 
+            // Save and empty cart!
             $order->save();
-
-            //$this->save_card_details( $response, $order->get_user_id(), $order_id );
-
-            // Empty cart!
-            // WC()->cart->empty_cart();
+            WC()->cart->empty_cart();
         }
 
         wp_redirect( $this->get_return_url( $order ) );
@@ -633,7 +641,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
 		sleep( 10 );
 
-		$korapay_response = $this->get_korapay_transaction( $event['data']['reference'] );
+		$korapay_response = WC_Korapay_API::verify_transaction( $event['data']['reference'] );
 
 		if ( false === $korapay_response ) {
 			return;
