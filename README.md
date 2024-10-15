@@ -1,11 +1,13 @@
 # Korapay WooCommerce Payment Gateway
 
-**Contributors:** Korapay
+**Contributors:** Korapay  
 **Tags:** payment gateway, WooCommerce, Korapay, e-commerce, African payments  
 **Requires at least:** 5.0  
-**Tested up to:** 6.3  
+**Tested up to:** 6.4  
+**WC requires at least:** 7.0.0    
+**WC tested up to:** 9.3.0   
 **Stable tag:** 1.0  
-**License:** GPLv2 or later  
+**License:** GPLv3 or later  
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html  
 
 ## Description
@@ -84,10 +86,6 @@ Please make sure that you’ve enabled Korapay in the WooCommerce settings and c
 
 ### 1.0
 * Initial release of Korapay WooCommerce Payment Gateway.
-
-## License
-
-This plugin is licensed under the GPLv2 or later. [Learn more about GPL](https://www.gnu.org/licenses/gpl-2.0.html).
 
 <!-- Commenting out refund functionality for future use -->
 <!-- ### Can I manage refunds via the WooCommerce dashboard?  
