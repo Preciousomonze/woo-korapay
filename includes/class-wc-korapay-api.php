@@ -61,12 +61,12 @@ class WC_Korapay_API {
      *
      * @param string $endpoint The API endpoint to call.
      * @param array $body The request body to send.
+     * @param string $method The HTTP method to use (GET, POST, etc.).
      * @param bool $disable_base_url If true, the $endpoint is used completely.
      * @param int $timeout If we need to set a timeout.
-     * @param string $method The HTTP method to use (GET, POST, etc.).
      * @return array|WP_Error The processed response from the API or a WP_Error on failure.
      */
-    public static function send_request( $endpoint, $body = array(), $disable_base_url = false, $timeout = 0, $method = 'POST' ) {
+    public static function send_request( $endpoint, $body = array(), $method = 'POST', $disable_base_url = false, $timeout = 0 ) {
         $url =  ( ! $disable_base_url ? self::$api_url . ltrim( $endpoint, '/' ) : $endpoint );
 
         // Prepare the request arguments based on the method.

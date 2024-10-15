@@ -1,8 +1,8 @@
 <?php
 /*
- * Plugin Name: Kora Pay WooCommerce Payment Gateway
+ * Plugin Name: Korapay WooCommerce Payment Gateway
  * Plugin URI: https://korayhq.com
- * Description: A WooCommerce payment gateway for Kora Pay.
+ * Description: A WooCommerce payment gateway for Korapay.
  * Version: 1.0.0
  * Author: Precious Omonzejele
  * Author URI: https://github.com/Preciousomonze
@@ -38,7 +38,7 @@ add_action( 'plugins_loaded', 'WC_KORAPAY\\load_textdomain' );
 
 if ( ! function_exists( 'WC_KORAPAY\\wc_gateway_korapay_init' ) ) {
     /**
-     * Initialize the Kora Pay payment gateway.
+     * Initialize the Korapay payment gateway.
      *
      * This function checks if WooCommerce is active, then loads the gateway class and settings.
      *
@@ -56,19 +56,19 @@ if ( ! function_exists( 'WC_KORAPAY\\wc_gateway_korapay_init' ) ) {
         require_once WC_KORAPAY_PLUGIN_DIR . '/includes/class-wc-korapay-api.php';
         require_once WC_KORAPAY_PLUGIN_DIR . '/includes/admin/class-wc-korapay-settings.php';
         
-        // Register the Kora Pay gateway with WooCommerce.
+        // Register the Korapay gateway with WooCommerce.
         add_filter( 'woocommerce_payment_gateways', 'WC_KORAPAY\\add_gateway_class' );
     }
 }
-add_action( 'plugins_loaded', 'WC_KORAPAY\\wc_gateway_korapay_init', 11 );
+add_action( 'plugins_loaded', 'WC_KORAPAY\\wc_gateway_korapay_init' );
 
 
 if ( ! function_exists( 'WC_KORAPAY\\add_gateway_class' ) ) {
     /**
-     * Add the Kora Pay gateway to WooCommerce's list of payment gateways.
+     * Add the Korapay gateway to WooCommerce's list of payment gateways.
      *
      * @param array $gateways Array of WooCommerce payment gateway classes.
-     * @return array Modified array of payment gateway classes including Kora Pay.
+     * @return array Modified array of payment gateway classes including Korapay.
      */
     function add_gateway_class( $gateways ) {
         $gateways[] = 'WC_KORAPAY\\WC_Gateway_Korapay';
