@@ -112,6 +112,7 @@ class WC_Korapay_API {
      * Process a refund with the Korapay API.
      *
      * This method sends a request to the Korapay API to process a refund.
+     * @TODO: No refund api atm.
      *
      * @param string $transaction_id The ID of the transaction to refund.
      * @param float $amount The amount to refund.
