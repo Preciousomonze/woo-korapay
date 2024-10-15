@@ -1,8 +1,6 @@
 <?php
 /**
  *  Uninstall
- * 
- * @package preciousomonze/woo-korapay
  *
  * @since 1.0.0
  */
