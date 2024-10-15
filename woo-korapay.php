@@ -4,8 +4,8 @@
  * Plugin URI: https://korayhq.com
  * Description: A WooCommerce payment gateway for Korapay.
  * Version: 1.0.0
- * Author: Precious Omonzejele
- * Author URI: https://github.com/Preciousomonze
+ * Author: Korapay
+ * Author URI: https://korahq.com
  * Text Domain: woo-korapay
  * Domain Path: /languages/
  * WC requires at least: 7.0
