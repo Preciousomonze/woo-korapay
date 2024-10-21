@@ -1,7 +1,7 @@
 {
     "name": "woo-korapay",
     "version": "1.0.0",
-    "description": "WooCommerce payment gateway for Korapay",
+    "description": "WooCommerce payment gateway for Kora",
     "scripts": {
         "build:scripts": "wp-scripts build",
         "start:scripts": "wp-scripts start",

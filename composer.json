@@ -1,6 +1,6 @@
 {
     "name": "preciousomonze/woo-korapay",
-    "description": "WooCommerce payment gateway for Korapay",
+    "description": "WooCommerce payment gateway for Kora",
 	"type": "wordpress-plugin",
     "license": "GPL-3.0",
     "authors": [
@@ -10,6 +10,7 @@
       }
     ],
     "keywords": [
+      "kora",
       "korapay",
       "woocommerce"
     ],

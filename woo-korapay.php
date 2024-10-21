@@ -1,10 +1,10 @@
 <?php
 /*
- * Plugin Name: Korapay WooCommerce Payment Gateway
+ * Plugin Name: Kora WooCommerce Payment Gateway
  * Plugin URI: https://korayhq.com
- * Description: A WooCommerce payment gateway for Korapay.
+ * Description: A WooCommerce payment gateway for Kora.
  * Version: 1.0.0
- * Author: Korapay
+ * Author: Kora
  * Author URI: https://korahq.com
  * Text Domain: woo-korapay
  * Domain Path: /languages/
@@ -38,7 +38,7 @@ add_action( 'plugins_loaded', 'WC_KORAPAY\\load_textdomain' );
 
 if ( ! function_exists( 'WC_KORAPAY\\wc_gateway_korapay_init' ) ) {
     /**
-     * Initialize the Korapay payment gateway.
+     * Initialize the Kora payment gateway.
      *
      * This function checks if WooCommerce is active, then loads the gateway class and settings.
      *
@@ -56,7 +56,6 @@ if ( ! function_exists( 'WC_KORAPAY\\wc_gateway_korapay_init' ) ) {
         require_once WC_KORAPAY_PLUGIN_DIR . '/includes/class-wc-korapay-api.php';
         require_once WC_KORAPAY_PLUGIN_DIR . '/includes/admin/class-wc-korapay-settings.php';
         
-        // Register the Korapay gateway with WooCommerce.
         add_filter( 'woocommerce_payment_gateways', 'WC_KORAPAY\\add_gateway_class' );
     }
 }
@@ -65,10 +64,10 @@ add_action( 'plugins_loaded', 'WC_KORAPAY\\wc_gateway_korapay_init' );
 
 if ( ! function_exists( 'WC_KORAPAY\\add_gateway_class' ) ) {
     /**
-     * Add the Korapay gateway to WooCommerce's list of payment gateways.
+     * Add the Kora gateway to WooCommerce's list of payment gateways.
      *
      * @param array $gateways Array of WooCommerce payment gateway classes.
-     * @return array Modified array of payment gateway classes including Korapay.
+     * @return array
      */
     function add_gateway_class( $gateways ) {
         $gateways[] = 'WC_KORAPAY\\WC_Gateway_Korapay';
@@ -81,20 +80,16 @@ if ( ! function_exists( 'WC_KORAPAY\\gateway_action_links' ) ) {
      * Add custom action links to the plugin on the plugins page.
      *
      * @param array $links Array of existing action links.
-     * @return array Modified array of action links including the settings link.
+     * @return array
      */
     function gateway_action_links( $links ) {
         // Define the settings link.
         $plugin_links = [
             '<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=korapay' ) ) . '">' . __( 'Settings', 'woo-korapay' ) . '</a>',
         ];
-
-        // Merge and return the new array of links.
         return array_merge( $plugin_links, $links );
     }
 }
-
-// Hook to add the action links to the plugin.
 add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'WC_KORAPAY\\gateway_action_links' );
 
 if ( ! function_exists( 'WC_KORAPAY\\declare_hpos_compatibility' ) ) {
@@ -154,7 +149,7 @@ if ( ! function_exists( 'WC_KORAPAY\\missing_wc_notice' ) ) {
 
 		$admin_notice_content = sprintf(
 			// translators: 1$-2$: opening and closing <strong> tags, 3$-4$: link tags, takes to woocommerce plugin on wp.org, 5$-6$: opening and closing link tags, leads to plugins.php in admin
-			esc_html__( '%1$sWooCommerce Korapay Gateway is inactive.%2$s The %3$sWooCommerce plugin%4$s must be active for the Koraypay Gateway to work. Please %5$sinstall & activate WooCommerce &raquo;%6$s', 'woo-korapay' ),
+			esc_html__( '%1$sKora Gateway for WooCommerce is inactive.%2$s The %3$sWooCommerce plugin%4$s must be active for the Koraypay Gateway to work. Please %5$sinstall & activate WooCommerce &raquo;%6$s', 'woo-korapay' ),
 			'<strong>',
 			'</strong>',
 			'<a href="http://wordpress.org/extend/plugins/woocommerce/">',
