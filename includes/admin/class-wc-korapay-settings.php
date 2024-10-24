@@ -51,9 +51,9 @@ class WC_Korapay_Settings {
         $settings_form_fields = array(
             'enabled'                          => array(
                 'title'       => __( 'Enable/Disable', 'woo-korapay' ),
-                'label'       => __( 'Enable Korapay', 'woo-korapay' ),
+                'label'       => __( 'Enable Kora', 'woo-korapay' ),
                 'type'        => 'checkbox',
-                'description' => __( 'Enable Korapay as a payment option on your website\'s checkout page.', 'woo-korapay' ),
+                'description' => __( 'Enable Kora as a payment option on your website\'s checkout page.', 'woo-korapay' ),
                 'default'     => 'no',
                 'desc_tip'    => true,
             ),
@@ -75,14 +75,14 @@ class WC_Korapay_Settings {
                 'title'       => __( 'Test mode', 'woo-korapay' ),
                 'label'       => __( 'Enable Test Mode', 'woo-korapay' ),
                 'type'        => 'checkbox',
-                'description' => __( 'Test mode enables you to test payments before going live. <br />Once the LIVE MODE is enabled on your Korapay account uncheck this.', 'woo-korapay' ),
+                'description' => __( 'Test mode enables you to test payments before going live. <br />Once the LIVE MODE is enabled on your Kora account uncheck this.', 'woo-korapay' ),
                 'default'     => 'yes',
                 'desc_tip'    => true,
             ),
             'payment_page_type'                     => array(
                 'title'       => __( 'Payment Option', 'woo-korapay' ),
                 'type'        => 'select',
-                //'description' => __( 'Popup shows the payment popup on the page while Redirect will redirect the customer to Korapay to make payment.', 'woo-korapay' ),
+                //'description' => __( 'Popup shows the payment popup on the page while Redirect will redirect the customer to Kora to make payment.', 'woo-korapay' ),
                 'default'     => '',
                 'desc_tip'    => false,
                 'options'     => array(

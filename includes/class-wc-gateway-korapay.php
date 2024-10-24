@@ -121,7 +121,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
     public function __construct() {
         $this->id                 = 'korapay';
         $this->icon               = ''; // URL to the icon that will be displayed on checkout. TODO
-        $this->method_title       = __( 'Korapay', 'woo-korapay' );
+        $this->method_title       = __( 'Kora', 'woo-korapay' );
         $this->method_description = sprintf( __( 'Accept online payments from local and international customers using Mastercard, Visa, Verve Cards and Bank Accounts. <a href="%1$s" target="_blank">Sign up</a> for a Kora account, and <a href="%2$s" target="_blank">get your API keys</a>.', 'woo-korapay' ), 'https://korahq.com', 'https://merchant.korapay.com/dashboard/settings/api-integrations' );
         
         $this->payment_page_type = $this->get_option( 'payment_page_type' );
@@ -211,7 +211,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
 		// Check required fields.
 		if ( ! ( $this->active_public_key && $this->active_secret_key ) ) {
-			echo '<div class="error"><p>' . sprintf( __( 'Please enter your Korapay merchant details <a href="%s">here</a> to be able to use the Korapay WooCommerce plugin.', 'woo-korapay' ), admin_url( 'admin.php?page=wc-settings&tab=checkout&section=korapay' ) ) . '</p></div>';
+			echo '<div class="error"><p>' . sprintf( __( 'Please enter your Kora merchant details <a href="%s">here</a> to be able to use the Kora Gateway For WooCommerce plugin.', 'woo-korapay' ), admin_url( 'admin.php?page=wc-settings&tab=checkout&section=korapay' ) ) . '</p></div>';
 			return;
 		}
 	}
@@ -220,7 +220,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	 * Display Korapay payment icon.
 	 */
 	public function get_icon() {
-        $icon = '<img src="' . $this->get_logo_url() . '" alt="' . apply_filters( 'wc_korapay_icon_alt_txt', __( 'Korapay Payment Options', 'woo-korapay' ) ) . '" width="100px">';
+        $icon = '<img src="' . $this->get_logo_url() . '" alt="' . apply_filters( 'wc_korapay_icon_alt_txt', __( 'Kora Payment Options', 'woo-korapay' ) ) . '" width="100px">';
 		return apply_filters( 'woocommerce_gateway_icon', $icon, $this->id );
 	}
 
@@ -242,7 +242,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	 */
 	public function admin_options() {
 		?>
-		<h2><?php _e( 'Korapay', 'woo-korapay' ); ?>
+		<h2><?php _e( 'Kora', 'woo-korapay' ); ?>
 		<?php
 		if ( function_exists( 'wc_back_link' ) ) {
 			wc_back_link( __( 'Return to payments', 'woo-korapay' ), admin_url( 'admin.php?page=wc-settings&tab=checkout' ) );
@@ -261,7 +261,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 			echo '</table>';
 		} else {
 			?>
-			<div class="inline error"><p><strong><?php _e( 'Korapay Payment Gateway Disabled', 'woo-korapay' ); ?></strong>: <?php echo $this->msg; ?></p></div>
+			<div class="inline error"><p><strong><?php _e( 'Kora Payment Gateway Disabled', 'woo-korapay' ); ?></strong>: <?php echo $this->msg; ?></p></div>
 			<?php
 		}
 	}
@@ -276,7 +276,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
 		echo '<div id="wc-korapay-form">';
 
-		echo '<p>' . __( 'Thank you for your order, please click the button below to pay with Korapay.', 'woo-korapay' ) . '</p>';
+		echo '<p>' . __( 'Thank you for your order, please click the button below to pay with Kora.', 'woo-korapay' ) . '</p>';
 
 		echo '<div id="wc_korapay_form"><form id="order_review" method="post" action="' . WC()->api_request_url( 'wc_gateway_korapay' ) . '"></form><button class="button" id="wc-korapay-payment-btn">' . apply_filters( 'wc_korapay_payment_btn_txt', __( 'Pay Now', 'woo-korapay' ), $order_id ) . '</button>';
 
@@ -425,14 +425,14 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
         $response = WC_Korapay_API::verify_transaction( $txn_ref );
 		
         if ( is_wp_error( $response ) || false === $response['status'] ) { // An issue occured.
-			$order->update_status( 'failed', __( 'An error occurred while verifying payment on Korapay.', 'woo-korapay' ) );
+			$order->update_status( 'failed', __( 'An error occurred while verifying payment on Kora.', 'woo-korapay' ) );
             wp_redirect( $this->get_return_url( $order ) );
 			exit;
         }
 
         if ( 'success' !== $response['data']['status'] ) {
             // Note: gives an overview status of the transaction ie. was the payment made successfully or not. It can be success, pending, processing, expired or failed.
-            $order->update_status( 'failed', __( 'Payment was declined by Korapay.', 'woo-korapay' ) );
+            $order->update_status( 'failed', __( 'Payment was declined by Kora.', 'woo-korapay' ) );
         } else {
             if ( in_array( $order->get_status(), array( 'processing', 'completed', 'on-hold' ) ) ) {
                 wp_redirect( $this->get_return_url( $order ) );
@@ -462,7 +462,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
                 // Admin Order Note.
                 // TODO: make it a filter.
-                $admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Amount paid is less than the total order amount.%3$sAmount Paid was <strong>%4$s (%5$s)</strong> while the total order amount is <strong>%6$s (%7$s)</strong>%8$s<strong>Korapay Transaction Reference:</strong> %9$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $currency_symbol, $amount_paid, $currency_symbol, $order_total, '<br />', $korapay_ref );
+                $admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Amount paid is less than the total order amount.%3$sAmount Paid was <strong>%4$s (%5$s)</strong> while the total order amount is <strong>%6$s (%7$s)</strong>%8$s<strong>Kora Transaction Reference:</strong> %9$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $currency_symbol, $amount_paid, $currency_symbol, $order_total, '<br />', $korapay_ref );
                 $order->add_order_note( $admin_order_note );
 
                 function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order_id ) : $order->reduce_order_stock();
@@ -485,7 +485,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
                     // Add Admin Order Note
                     // TODO: make this a filter.
-                    $admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Order currency is different from the payment currency.%3$sOrder Currency is <strong>%4$s (%5$s)</strong> while the payment currency is <strong>%6$s (%7$s)</strong>%8$s<strong>Korapay Transaction Reference:</strong> %9$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $order_currency, $currency_symbol, $payment_currency, $gateway_symbol, '<br />', $korapay_ref );
+                    $admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Order currency is different from the payment currency.%3$sOrder Currency is <strong>%4$s (%5$s)</strong> while the payment currency is <strong>%6$s (%7$s)</strong>%8$s<strong>Kora Transaction Reference:</strong> %9$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $order_currency, $currency_symbol, $payment_currency, $gateway_symbol, '<br />', $korapay_ref );
                     $order->add_order_note( $admin_order_note );
 
                     function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order_id ) : $order->reduce_order_stock();
@@ -505,7 +505,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
                     $order->add_order_note( $notice, 1 );
 
                     // Add Admin Order Note.
-                    $admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Transaction reference comparison failed.%3$sOrder Transaction reference is <strong>%4$s</strong> while the transaction reference from korapay is <strong>%5$s</strong>%6$s<strong>Korapay Transaction Reference:</strong> %7$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $order->get_meta( '_korapay_txn_ref' ), $korapay_ref, '<br />', $korapay_ref );
+                    $admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Transaction reference comparison failed.%3$sOrder Transaction reference is <strong>%4$s</strong> while the transaction reference from Kora is <strong>%5$s</strong>%6$s<strong>Kora Transaction Reference:</strong> %7$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $order->get_meta( '_korapay_txn_ref' ), $korapay_ref, '<br />', $korapay_ref );
                     $order->add_order_note( $admin_order_note );
 
                     function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order_id ) : $order->reduce_order_stock();
@@ -515,7 +515,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 				} else {
 
                     $order->payment_complete( $korapay_ref );
-                    $order->add_order_note( sprintf( __( 'Payment via Korapay successful! (Transaction Reference: %s)', 'woo-korapay' ), $korapay_ref ) );
+                    $order->add_order_note( sprintf( __( 'Payment via Kora successful! (Transaction Reference: %s)', 'woo-korapay' ), $korapay_ref ) );
 
                     if ( $this->is_autocomplete_order_enabled( $order ) ) {
                         $order->update_status( 'completed' );
@@ -535,7 +535,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 /**
 	 * Process a refund request from the Order details screen.
      * 
-     * Korapay doesn't have a refund endpoint, so this is dormant for now.
+     * Kora doesn't have a refund endpoint, so this is dormant for now.
 	 *
 	 * @param int $order_id WC Order ID.
 	 * @param float|null $amount Refund Amount.
@@ -697,7 +697,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 			$order->add_order_note( $notice, 1 );
 
 			// Add Admin Order Note.
-			$admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Amount paid is less than the total order amount.%3$sAmount Paid was <strong>%4$s (%5$s)</strong> while the total order amount is <strong>%6$s (%7$s)</strong>%8$s<strong>Korapay Transaction Reference:</strong> %9$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $currency_symbol, $amount_paid, $currency_symbol, $order_total, '<br />', $korapay_ref );
+			$admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Amount paid is less than the total order amount.%3$sAmount Paid was <strong>%4$s (%5$s)</strong> while the total order amount is <strong>%6$s (%7$s)</strong>%8$s<strong>Kora Transaction Reference:</strong> %9$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $currency_symbol, $amount_paid, $currency_symbol, $order_total, '<br />', $korapay_ref );
 			$order->add_order_note( $admin_order_note );
 
 			function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order_id ) : $order->reduce_order_stock();
@@ -721,7 +721,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 				$order->add_order_note( $notice, 1 );
 
 				// Add Admin Order Note.
-				$admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Order currency is different from the payment currency.%3$sOrder Currency is <strong>%4$s (%5$s)</strong> while the payment currency is <strong>%6$s (%7$s)</strong>%8$s<strong>Korapay Transaction Reference:</strong> %9$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $order_currency, $currency_symbol, $payment_currency, $gateway_symbol, '<br />', $korapay_ref );
+				$admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Order currency is different from the payment currency.%3$sOrder Currency is <strong>%4$s (%5$s)</strong> while the payment currency is <strong>%6$s (%7$s)</strong>%8$s<strong>Kora Transaction Reference:</strong> %9$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $order_currency, $currency_symbol, $payment_currency, $gateway_symbol, '<br />', $korapay_ref );
 				$order->add_order_note( $admin_order_note );
 
 				function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order_id ) : $order->reduce_order_stock();
@@ -732,7 +732,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
 				$order->payment_complete( $korapay_ref );
 
-				$order->add_order_note( sprintf( __( 'Payment via Korapay successful (Transaction Reference: %s)', 'woo-korapay' ), $korapay_ref ) );
+				$order->add_order_note( sprintf( __( 'Payment via Kora successful (Transaction Reference: %s)', 'woo-korapay' ), $korapay_ref ) );
 
 				WC()->cart->empty_cart();
 
@@ -753,7 +753,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	 */
 	public function is_valid_for_use() {
 		if ( ! in_array( get_woocommerce_currency(), apply_filters( 'wc_korapay_supported_currencies', array( 'NGN', 'USD', 'GHS', 'KES' ) ) ) ) {
-			$this->msg = sprintf( __( 'Sorry, Korapay does not support your store currency. Kindly set it to either NGN (&#8358), GHS (&#x20b5;), USD (&#36;), or KES (KSh) <a href="%s">here</a>', 'woo-korapay' ), admin_url( 'admin.php?page=wc-settings&tab=general' ) );
+			$this->msg = sprintf( __( 'Sorry, Kora does not support your store currency. Kindly set it to either NGN (&#8358), GHS (&#x20b5;), USD (&#36;), or KES (KSh) <a href="%s">here</a>', 'woo-korapay' ), admin_url( 'admin.php?page=wc-settings&tab=general' ) );
 			return false;
 		}
 
