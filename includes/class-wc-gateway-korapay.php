@@ -256,7 +256,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		</h2>
 		<h4>
 			<strong>
-				<?php printf( __( 'Optional: To avoid stories that touch in situations where bad network makes it impossible to verify transactions, set your webhook URL <a href="%1$s" target="_blank" rel="noopener noreferrer">here</a> to the URL below<span style="color: red"><pre><code>%2$s</code></pre></span>', 'woo-korapay' ), $kora_webhook_url, $user_webhook_url );
+				<?php
 					if ( ! empty( $user_webhook_url ) ) {
             			printf(
                 			__( 'Optional: To avoid stories that touch in situations where bad network makes it impossible to verify transactions, set your webhook URL in your Korapay settings <a href="%1$s" target="_blank" rel="noopener noreferrer">here</a> to the URL below:<br><span style="color: red"><pre><code>%2$s</code></pre></span>', 'woo-korapay' ),
@@ -265,15 +265,13 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
             			);
         			} else {
             			printf(
-                			__( 'Optional: To avoid stories that touch in situations where bad network makes it impossible to verify transactions, please set a custom webhook URL by filling the "Custom webhook URL" field below, then add this URL to your Korapay settings <a href="%1$s" target="_blank" rel="noopener noreferrer">here</a>.', 'woo-korapay' ),
+                			__( 'Optional: To avoid stories that touch in situations where bad network makes it impossible to verify transactions, please set a custom webhook URL by filling the <code>Custom webhook URL</code> field below, then add this URL to your Korapay settings <a href="%1$s" target="_blank" rel="noopener noreferrer">here</a>.', 'woo-korapay' ),
                 			$kora_webhook_url
             			);
         			}
 					?>
 				</strong>
 		</h4>
-
-
 		<?php
 		if ( $this->is_valid_for_use() ) {
 			echo '<table class="form-table">';

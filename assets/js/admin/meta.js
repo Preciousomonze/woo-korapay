@@ -45,8 +45,16 @@ jQuery( function( $ ) {
 			// Restrict webhook endpoint field to allow only lowercase letters, numbers, hyphens, and underscores.
 			$( '#woocommerce_korapay_webhook_endpoint' ).on( 'change', function() {
 				var sanitizedValue = $( this ).val().toLowerCase().replace( /[^a-z0-9-_]/g, '' );
+                sanitizedValue     = sanitizedValue.substring( 0, 15 );
 				$( this ).val( sanitizedValue );
+                $( '#wc-korapay-wh-url span' ).text( ( sanitizedValue !== '' ? sanitizedValue : '{YOUR URL}' ) );
 			});
+
+            $( '#woocommerce_korapay_webhook_endpoint' ).on( 'keyup', function() {
+                var currentValue = $( this ).val();
+                $( '#wc-korapay-wh-url span' ).text( ( currentValue.length  > 0 ? currentValue : '{YOUR URL}' ) );
+            });
+            
 		},
 
 		/**
