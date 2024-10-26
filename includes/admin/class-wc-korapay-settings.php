@@ -74,11 +74,11 @@ class WC_Korapay_Settings {
             'webhook_endpoint'                 => array(
                 'title'             => __( 'Custom Webhook URL Endpoint', 'woo-korapay' ),
                 'type'              => 'text',
-                'description'       => sprintf( __( 'Enter your custom webhook URL here, it will be:<code id="wc-korapay-wh-url">%s<span>{YOUR URL}</span></code>', 'woo-korapay' ), rtrim( WC()->api_request_url(  WC_KORAPAY_WEBHOOK_PREFIX ), '/' ) ),
+                'description'       => sprintf( __( 'Enter your custom webhook URL endpoint here, your webhook URL will be:<code id="wc-korapay-wh-url">%s<span>{YOUR URL}</span></code>', 'woo-korapay' ), rtrim( WC()->api_request_url(  WC_KORAPAY_WEBHOOK_PREFIX ), '/' ) ),
                 'default'           => '',
                 'desc_tip'          => false,
                 'custom_attributes' => array(
-                    'title'    => __( 'Enter a valid webhook endpoint. Only lowercase letters, numbers, hyphens, and underscores are allowed. Max 15 characters.', 'woo-korapay' ),
+                    'title'    => __( 'Enter a valid webhook URL endpoint. Only lowercase letters, numbers, hyphens, and underscores are allowed. Max 15 characters.', 'woo-korapay' ),
                     'maxlength' => '15',
                 ),
             ),
