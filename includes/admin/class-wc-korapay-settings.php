@@ -61,15 +61,22 @@ class WC_Korapay_Settings {
                 'title'       => __( 'Title', 'woo-korapay' ),
                 'type'        => 'text',
                 'description' => __( 'This controls the payment method title which the user sees during checkout.', 'woo-korapay' ),
-                'default'     => __( 'Debit/Credit Cards', 'woo-korapay' ),
+                'default'     => apply_filters( 'wc_korapay_default_gateway_title', __( 'Debit/Credit Cards', 'woo-korapay' ) ),
                 'desc_tip'    => true,
             ),
             'description'                      => array(
                 'title'       => __( 'Description', 'woo-korapay' ),
                 'type'        => 'textarea',
                 'description' => __( 'This controls the payment method description which the user sees during checkout.', 'woo-korapay' ),
-                'default'     => __( 'Make payment using your debit and credit cards', 'woo-korapay' ),
+                'default'     => apply_filters( 'wc_korapay_default_gateway_description', __( 'Make payment using your debit and credit cards', 'woo-korapay' ) ),
                 'desc_tip'    => true,
+            ),
+            'webhook_endpoint'                 => array(
+                'title'       => __( 'Custom Webhook URL', 'woo-korapay' ),
+                'type'        => 'text',
+                'description' => sprintf( __( 'Enter your custom webhook URL here, it will be prefixed with:<code>%s</code>', 'woo-korapay' ), rtrim( WC()->api_request_url(  WC_KORAPAY_WEBHOOK_PREFIX ), '/' ) ),
+                'default'     => '',
+                'desc_tip'    => false,
             ),
             'testmode'                         => array(
                 'title'       => __( 'Test mode', 'woo-korapay' ),
@@ -79,15 +86,15 @@ class WC_Korapay_Settings {
                 'default'     => 'yes',
                 'desc_tip'    => true,
             ),
-            'payment_page_type'                     => array(
+            'payment_page_type'                => array(
                 'title'       => __( 'Payment Option', 'woo-korapay' ),
                 'type'        => 'select',
-                //'description' => __( 'Popup shows the payment popup on the page while Redirect will redirect the customer to Kora to make payment.', 'woo-korapay' ),
+                'description' => __( 'Popup shows the payment popup on the page while Redirect will redirect the customer to Kora to make payment.', 'woo-korapay' ),
                 'default'     => '',
                 'desc_tip'    => false,
                 'options'     => array(
-                    /*''          => __( 'Select One', 'woo-korapay' ),
-                    'inline'    => __( 'Popup', 'woo-korapay' ),*/
+                    ''          => __( 'Select One', 'woo-korapay' ),
+                    'inline'    => __( 'Popup', 'woo-korapay' ),
                     'redirect'  => __( 'Redirect', 'woo-korapay' ),
                 ),
             ),
@@ -114,6 +121,15 @@ class WC_Korapay_Settings {
                 'type'        => 'text',
                 'description' => __( 'Enter your Live Public Key here.', 'woo-korapay' ),
                 'default'     => '',
+            ),
+            'customer_bears_cost'              => array(
+                'title'       => __( 'Make Customers bear cost', 'woo-korapay' ),
+                'label'       => __( 'Make Customers bear transction charge cost', 'woo-korapay' ),
+                'type'        => 'checkbox',
+                'class'       => 'wc-korapay-customer-bear-cost',
+                'description' => __( 'If enabled, the customer will bear the cost of the transaction charge', 'woo-korapay' ),
+                'default'     => 'no',
+                'desc_tip'    => true,
             ),
             'autocomplete_order'               => array(
                 'title'       => __( 'Autocomplete Order After Payment', 'woo-korapay' ),

@@ -21,6 +21,7 @@ define( 'WC_KORAPAY_VERSION', '1.0.0' );
 define( 'WC_KORAPAY_PLUGIN_FILE', __FILE__ );
 define( 'WC_KORAPAY_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WC_KORAPAY_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'WC_KORAPAY_WEBHOOK_PREFIX', 'wc_korapay_wh_' );
 
 
 if ( ! function_exists( 'WC_KORAPAY\\load_plugin_textdomain' ) ) {

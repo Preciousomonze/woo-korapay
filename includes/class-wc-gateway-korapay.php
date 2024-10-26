@@ -138,7 +138,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		// Hooks law :).
         add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
         add_action( 'admin_notices', array( $this, 'admin_notices' ) );
-		add_action( 'woocommerce_receipt_' . $this->id, array( $this, 'receipt_page' ) );
+		add_action( 'woocommerce_receipt_' . $this->id, array( $this, 'receipt_content' ) );
 
 		// Payment listener.
 		add_action( 'woocommerce_api_wc_gateway_korapay', array( $this, 'handle_transaction_verifaction' ) );
@@ -147,6 +147,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		add_action( 'woocommerce_api_wc_korapay_webhook', array( $this, 'process_webhook' ) );
 
         // Our scripts.
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
        // add_action( 'wp_enqueue_scripts', array( $this, 'frontend_scripts' ) );
     }
 
@@ -166,11 +167,14 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		$this->live_public_key = $this->get_option( 'live_public_key' );
 		$this->live_secret_key = $this->get_option( 'live_secret_key' );
 
-		$this->saved_cards = $this->get_option( 'saved_cards' ) === 'yes' ? true : false;
+		$this->custom_webhook_endpoint = $this->get_option( 'webhook_endpoint' );
+		$this->merchant_bear_cost      = $this->get_option( 'customer_bears_cost' ) === 'yes' ? false : true;
+
+		// $this->saved_cards = $this->get_option( 'saved_cards' ) === 'yes' ? true : false;
 
         // Custom metadata.
 		$this->custom_metadata = $this->get_option( 'custom_metadata' ) === 'yes' ? true : false;
-
+		/*
 		$this->meta_order_id         = $this->get_option( 'meta_order_id' ) === 'yes' ? true : false;
 		$this->meta_name             = $this->get_option( 'meta_name' ) === 'yes' ? true : false;
 		$this->meta_email            = $this->get_option( 'meta_email' ) === 'yes' ? true : false;
@@ -178,7 +182,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		$this->meta_billing_address  = $this->get_option( 'meta_billing_address' ) === 'yes' ? true : false;
 		$this->meta_shipping_address = $this->get_option( 'meta_shipping_address' ) === 'yes' ? true : false;
 		$this->meta_products         = $this->get_option( 'meta_products' ) === 'yes' ? true : false;
-
+		*/
         // Let's set the api keys we will be using.
 		$this->active_public_key = $this->testmode ? $this->test_public_key : $this->live_public_key;
 		$this->active_secret_key = $this->testmode ? $this->test_secret_key : $this->live_secret_key;
@@ -195,7 +199,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
     public function supported_features() {
         $this->supports = array(
 			'products',
-			// 'refunds', // TODO
+			// 'refunds', // TODO: Waiting on Team Kora.
 			// 'tokenization',
 		);
     }
@@ -232,8 +236,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	 */
 	public function get_logo_url() {
 		$base_location = wc_get_base_location();
-		$url           = \WC_HTTPS::force_https_url( plugins_url( 'assets/images/korapay-' . strtolower( $base_location['country'] ) . '.png', WC_KORAPAY_PLUGIN_FILE ) );
-
+		$url           = \WC_HTTPS::force_https_url( plugins_url( 'assets/images/kora-' . strtolower( $base_location['country'] ) . '.png', WC_KORAPAY_PLUGIN_FILE ) );
 		return apply_filters( 'wc_gateway_korapay_icon_url', $url, $this->id );
 	}
 
@@ -241,6 +244,8 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	 * Admin Panel Options.
 	 */
 	public function admin_options() {
+		$kora_webhook_url = 'https://merchant.korapay.com/dashboard/settings/api-integrations';
+		$user_webhook_url = ( ! empty( $this->custom_webhook_endpoint ) ? WC()->api_request_url(  WC_KORAPAY_WEBHOOK_PREFIX . $this->custom_webhook_endpoint ) : '' );
 		?>
 		<h2><?php _e( 'Kora', 'woo-korapay' ); ?>
 		<?php
@@ -250,7 +255,22 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		?>
 		</h2>
 		<h4>
-			<strong><?php printf( __( 'Optional: To avoid stories that touch in situations where bad network makes it impossible to verify transactions, set your webhook URL <a href="%1$s" target="_blank" rel="noopener noreferrer">here</a> to the URL below<span style="color: red"><pre><code>%2$s</code></pre></span>', 'woo-korapay' ), 'https://merchant.korapay.com/dashboard/settings/api-integrations', WC()->api_request_url( 'wc_korapay_webhook' ) ); ?></strong>
+			<strong>
+				<?php printf( __( 'Optional: To avoid stories that touch in situations where bad network makes it impossible to verify transactions, set your webhook URL <a href="%1$s" target="_blank" rel="noopener noreferrer">here</a> to the URL below<span style="color: red"><pre><code>%2$s</code></pre></span>', 'woo-korapay' ), $kora_webhook_url, $user_webhook_url );
+					if ( ! empty( $user_webhook_url ) ) {
+            			printf(
+                			__( 'Optional: To avoid stories that touch in situations where bad network makes it impossible to verify transactions, set your webhook URL in your Korapay settings <a href="%1$s" target="_blank" rel="noopener noreferrer">here</a> to the URL below:<br><span style="color: red"><pre><code>%2$s</code></pre></span>', 'woo-korapay' ),
+                			$kora_webhook_url,
+                			$user_webhook_url
+            			);
+        			} else {
+            			printf(
+                			__( 'Optional: To avoid stories that touch in situations where bad network makes it impossible to verify transactions, please set a custom webhook URL by filling the "Custom webhook URL" field below, then add this URL to your Korapay settings <a href="%1$s" target="_blank" rel="noopener noreferrer">here</a>.', 'woo-korapay' ),
+                			$kora_webhook_url
+            			);
+        			}
+					?>
+				</strong>
 		</h4>
 
 
@@ -266,12 +286,32 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		}
 	}
 
+	/**
+	 * Load admin scripts.
+	 */
+	public function admin_scripts() {
+
+		if ( 'woocommerce_page_wc-settings' !== get_current_screen()->id ) {
+			return;
+		}
+
+		$suffix = '';//defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+
+		$admin_params = array(
+			'plugin_url' => WC_KORAPAY_PLUGIN_URL,
+		);
+
+		wp_enqueue_script( 'wc_korapay_admin', WC_KORAPAY_PLUGIN_URL . 'assets/js/admin/meta' . $suffix . '.js', array(), WC_KORAPAY_VERSION, true );
+		wp_localize_script( 'wc_korapay_admin', 'wc_korapay_admin_params', $admin_params );
+	}
+
+
     /**
 	 * Displays the payment side.
 	 *
 	 * @param $order_id
 	 */
-	public function receipt_page( $order_id ) {
+	public function receipt_content( $order_id ) {
 		$order = wc_get_order( $order_id );
 
 		echo '<div id="wc-korapay-form">';
@@ -311,37 +351,39 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		$order        = wc_get_order( $order_id );
 		$amount       = $order->get_total();
 		$txn_ref      = 'kp_' . $order_id . '_' . time();
-		$webhook_url  = WC()->api_request_url( 'wc_korapay_webhook' );
+		$webhook_url  = ( ! empty( $this->custom_webhook_endpoint ) ? WC()->api_request_url( WC_KORAPAY_WEBHOOK_PREFIX . $this->custom_webhook_endpoint ) : '' );
 		$redirect_url = WC()->api_request_url( 'wc_gateway_korapay' );
 
 		// TODO: Set a setting field to allow non-technical users change this(not necessary).
 		
 		/**
-		 * Filters allowed payment channels
+		 * Filters allowed payment channels.
+		 * 
+		 * More info here: https://developers.korapay.com/docs/checkout-redirect
 		 * 
 		 * @param int $order_id
 		 * @return array
 		 */		
-		$_channels = apply_filters( 'wc_korapay_allowed_payment_channels', array( 'card', 'bank_transfer' ), $order_id );
+		$_channels = apply_filters( 'wc_korapay_allowed_payment_channels', array(), $order_id );
 		
 		/**
 		 * Filters default payment channel
 		 * 
+		 * More info here: https://developers.korapay.com/docs/checkout-redirect
+		 * 
 		 * @param int $order_id
 		 * @return string
 		 */		
-		$_default_channel = apply_filters( 'wc_korapay_default_payment_channels', 'card', $order_id );
+		$_default_channel = apply_filters( 'wc_korapay_default_payment_channels', '', $order_id );
 
 		$korapay_params = array(
-            'amount'             => absint( $amount ),
-            'currency'           => $order->get_currency(),
-            'reference'          => $txn_ref,
-            'redirect_url'       => $redirect_url,
-            'notification_url'   => $webhook_url,
-            'narration'          => sprintf( apply_filters( 'wc_korapay_order_narration_text', __( 'Payment for Order #%s', 'wc-korapay' ) ), $order->get_order_number() ),
-            'channels'           => $_channels,
-            'default_channel'    => $_default_channel,
-            'customer'           => array(
+            'amount'              => absint( $amount ),
+            'currency'            => $order->get_currency(),
+            'reference'           => $txn_ref,
+            'redirect_url'        => $redirect_url,
+            'narration'           => sprintf( apply_filters( 'wc_korapay_order_narration_text', __( 'Payment for Order #%s', 'woo-korapay' ) ), $order->get_order_number() ),
+            'merchant_bears_cost' => $this->merchant_bears_cost,
+			'customer'            => array(
                 'email' => $order->get_billing_email(),
                 'name'  => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
             ),
@@ -350,8 +392,15 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
                 'meta_customer_id'   => $order->get_user_id(),
                 'meta_cancel_action' => wc_get_cart_url(),
             ),*/
-            // 'merchant_bears_cost' => true, // TODO
         );
+
+		if ( ! empty( $_channels ) ) {
+			$korapay_params['channels'] = $_channels;
+		} if ( ! empty( $_default_channel ) ) {
+			 $korapay_params['default_channel'] = $_default_channel;
+		} if ( ! empty( $webhook_url ) ) {
+			$korapay_params['notification_url'] = $webhook_url;
+		}
 
 		// $korapay_params['metadata']['custom_fields'] = $this->get_custom_fields( $order_id );
 
@@ -752,8 +801,8 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	 * Check if this gateway is enabled and available in the user's country.
 	 */
 	public function is_valid_for_use() {
-		if ( ! in_array( get_woocommerce_currency(), apply_filters( 'wc_korapay_supported_currencies', array( 'NGN', 'USD', 'GHS', 'KES' ) ) ) ) {
-			$this->msg = sprintf( __( 'Sorry, Kora does not support your store currency. Kindly set it to either NGN (&#8358), GHS (&#x20b5;), USD (&#36;), or KES (KSh) <a href="%s">here</a>', 'woo-korapay' ), admin_url( 'admin.php?page=wc-settings&tab=general' ) );
+		if ( ! in_array( get_woocommerce_currency(), apply_filters( 'wc_korapay_supported_currencies', array( 'NGN', 'GHS', 'KES' ) ) ) ) {
+			$this->msg = sprintf( __( 'Sorry, Kora does not support your store currency. Kindly set it to either NGN (&#8358), GHS (&#x20b5;), or KES (KSh) <a href="%s">here</a>', 'woo-korapay' ), admin_url( 'admin.php?page=wc-settings&tab=general' ) );
 			return false;
 		}
 
