@@ -67,9 +67,16 @@ Simply toggle **Test Mode** in the Kora settings, and use the test API keys prov
 * An active [WooCommerce installation](https://woocommerce.com/).
 * A valid SSL certificate for secure payments.
 
-### Why can’t I see Kora in the checkout?
+### Why can’t I see Kora in the checkout? 😪
 
 Please make sure that you’ve enabled Kora in the WooCommerce settings and correctly entered your API keys. Also, ensure that the settings have been saved.
+
+### How do I process a Refund? 😪
+
+To process a refund, log in to your Kora dashboard, find the transaction, and select "Refund." Pick the refund type, provide a reason, and confirm. Refunds are processed within 48 hours on weekdays, without any extra fees, but note that the original transaction fee won't be refunded. Funds will be returned to the original payment method.
+
+For more detailed steps, check out [Kora's refund guide](https://support.korapay.com/en/articles/6089921-refunds).
+To process refund.
 
 ## Screenshots
 
