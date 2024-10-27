@@ -799,11 +799,13 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	 * Check if this gateway is enabled and available in the user's country.
 	 */
 	public function is_valid_for_use() {
-		if ( ! in_array( get_woocommerce_currency(), apply_filters( 'wc_korapay_supported_currencies', array( 'NGN', 'GHS', 'KES' ) ) ) ) {
-			$this->msg = sprintf( __( 'Sorry, Kora does not support your store currency. Kindly set it to either NGN (&#8358), GHS (&#x20b5;), or KES (KSh) <a href="%s">here</a>', 'woo-korapay' ), admin_url( 'admin.php?page=wc-settings&tab=general' ) );
+		if ( ! in_array( get_woocommerce_currency(), apply_filters( 'wc_korapay_supported_currencies', array( 'NGN', 'GHS', 'KES', 'XAF', 'XOF', 'ZAR' ) ) ) ) {
+			$this->msg = sprintf( 
+				__( 'Sorry, Kora does not support your store currency. Kindly set it to either NGN (&#8358;), GHS (&#x20b5;), KES (KSh), XAF (FCFA), XOF (CFA), or ZAR (R) <a href="%s">here</a>', 'woo-korapay' ), 
+				admin_url( 'admin.php?page=wc-settings&tab=general' ) 
+			);
 			return false;
 		}
-
 		return true;
 	}
 
