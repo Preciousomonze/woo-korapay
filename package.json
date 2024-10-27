@@ -8,7 +8,8 @@
         "makepot": "npx @wp-blocks/make-pot ./ ./languages/ --domain woo-korapay",
         "compress-zip": "sh compress-zip-offload.sh -c",
         "offload-zip": "sh compress-zip-offload.sh -o",
-        "compress-zip-offload": "npm run compress-zip && npm run offload-zip"
+        "compress-zip-offload": "npm run compress-zip && npm run offload-zip",
+        "build": "npm run build:scripts && npm run makepot && npm run compress-zip"
     },
     "author": "Precious Omonzejele",
     "license": "GPL-3.0",
