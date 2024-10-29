@@ -1,7 +1,8 @@
-/**
- * External Dependencies.
- */
 const path = require( 'path' );
+const fs   = require('fs');
+
+const TerserPlugin = require( 'terser-webpack-plugin' );
+const isProduction = true;
 
 // Inspo from Sage Tubiz :).
 const WooCommerceDependencyExtractionWebpackPlugin = require( '@woocommerce/dependency-extraction-webpack-plugin' );
@@ -34,17 +35,56 @@ const requestToHandle = ( request ) => {
  */
 const defaultConfig = require( '@wordpress/scripts/config/webpack.config.js' );
 
+// Function to automatically generate entries by looping through a folder.
+const generateEntries = ( baseDir, folder ) => {
+    const srcDir  = path.resolve( baseDir, folder );
+    const files   = fs.readdirSync( srcDir );
+    const entries = {};
+
+    files.forEach( ( file ) => {
+        const ext  = path.extname( file );
+        const name = path.basename( file, ext ); // Remove the extension
+
+        if ( ext === '.js' ) {
+            // Create entry for each JS file with folder subdirectory in the key.
+            entries[`${folder}/${name}`] = path.resolve( srcDir, file );
+        }
+    });
+
+    return entries;
+};
+
+// Automatically get all JS files from `frontend`, `blocks/frontend`, and `admin`
+const entries = {
+    ...generateEntries( __dirname, 'assets/js/src/frontend' ),
+    ...generateEntries( __dirname, 'assets/js/src/blocks' ),
+    ...generateEntries( __dirname, 'assets/js/src/admin' ),
+};
+
 module.exports = {
 	...defaultConfig,
 	mode: 'production',
-	entry: {
-		frontend: path.resolve( __dirname, 'assets/js/src', 'frontend.js' ),
-		'blocks/frontend': path.resolve( __dirname, 'assets/js/src/blocks', 'frontend.js' ),
-		//admin: path.resolve( __dirname, 'assets/js/src', 'admin.js' ),
-	},
+	entry: entries,
 	output: {
 		path: path.resolve( __dirname, 'assets/js/build' ),
-		filename: '[name].js',
+		filename: ( pathData ) => {
+            const folder = path.dirname( pathData.chunk.name ).replace( 'assets/js/src/', '' );
+            const name   = path.basename( pathData.chunk.name );
+            return isProduction ? `${folder}/${name}.min.js` : `${folder}/${name}.js`;
+        },
+	},
+	optimization: {
+		minimize: isProduction,
+		minimizer: [
+			new TerserPlugin({
+				terserOptions: {
+					compress: {
+						drop_console: true, // Removes console logs in production.
+					},
+				},
+				extractComments: false, // Prevents generating separate files for license comments.
+			}),
+		],
 	},
 	plugins: [
 		...defaultConfig.plugins.filter(
