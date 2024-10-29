@@ -141,10 +141,12 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		add_action( 'woocommerce_receipt_' . $this->id, array( $this, 'receipt_content' ) );
 
 		// Payment listener.
-		add_action( 'woocommerce_api_wc_gateway_korapay', array( $this, 'handle_transaction_verifaction' ) );
+		add_action( 'woocommerce_api_wc_gateway_korapay', array( $this, 'handle_transaction_verification' ) );
 
 		// Webhook listener/API hook.
-		add_action( 'woocommerce_api_wc_korapay_webhook', array( $this, 'process_webhook' ) );
+		if ( ! empty( $this->custom_webhook_endpoint ) ) {
+			add_action( 'woocommerce_api_' . WC_KORAPAY_WEBHOOK_PREFIX . $this->custom_webhook_endpoint , array( $this, 'process_webhook' ) );
+		}
 
         // Our scripts.
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
@@ -311,11 +313,8 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	 */
 	public function receipt_content( $order_id ) {
 		$order = wc_get_order( $order_id );
-
 		echo '<div id="wc-korapay-form">';
-
 		echo '<p>' . __( 'Thank you for your order, please click the button below to pay with Kora.', 'woo-korapay' ) . '</p>';
-
 		echo '<div id="wc_korapay_form"><form id="order_review" method="post" action="' . WC()->api_request_url( 'wc_gateway_korapay' ) . '"></form><button class="button" id="wc-korapay-payment-btn">' . apply_filters( 'wc_korapay_payment_btn_txt', __( 'Pay Now', 'woo-korapay' ), $order_id ) . '</button>';
 
 		if ( ! $this->remove_cancel_order_button ) {
