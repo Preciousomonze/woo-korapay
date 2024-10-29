@@ -448,7 +448,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
      * Verify Payment Transactiona and handle order.
 	 * Let's avoid stories that touch abeg.
      */
-    public function handle_transaction_verifaction() {
+	public function handle_transaction_verification() {
 		if ( isset( $_REQUEST['korapay_txn_ref'] ) ) {
 			$txn_ref = sanitize_text_field( $_REQUEST['korapay_txn_ref'] );
 		} elseif ( isset( $_REQUEST['reference'] ) ) {
@@ -459,127 +459,129 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
 		@ob_clean(); // Inspo from Tubiz :).
 
-        if ( ! $txn_ref ) { // No transaction reference.
-            wp_redirect( wc_get_page_permalink( 'cart' ) );
-            exit;
-        }
-
-        // Let's proceed, first get our order details.
-        $order_details = explode( '_', $txn_ref );
-        $order_id      = (int) $order_details[1];
-        $order         = wc_get_order( $order_id );
-
-        $response = WC_Korapay_API::verify_transaction( $txn_ref );
-		
-        if ( is_wp_error( $response ) || false === $response['status'] ) { // An issue occured.
-			$order->update_status( 'failed', __( 'An error occurred while verifying payment on Kora.', 'woo-korapay' ) );
-            wp_redirect( $this->get_return_url( $order ) );
+		if ( ! $txn_ref ) {
+			wp_redirect( wc_get_page_permalink( 'cart' ) );
 			exit;
-        }
+		}
 
-        if ( 'success' !== $response['data']['status'] ) {
-            // Note: gives an overview status of the transaction ie. was the payment made successfully or not. It can be success, pending, processing, expired or failed.
-            $order->update_status( 'failed', __( 'Payment was declined by Kora.', 'woo-korapay' ) );
-        } else {
-            if ( in_array( $order->get_status(), array( 'processing', 'completed', 'on-hold' ) ) ) {
-                wp_redirect( $this->get_return_url( $order ) );
-                exit;
-            }
+		$order_details = explode( '_', $txn_ref );
+		$order_id = (int) $order_details[1];
+		$order = wc_get_order( $order_id );
 
-            $order_total      = $order->get_total();
-            $order_currency   = $order->get_currency();
-            $currency_symbol  = get_woocommerce_currency_symbol( $order_currency );
-            $amount_paid      = $response['data']['amount'];
-            $korapay_ref      = $response['data']['reference'];
-            $payment_currency = strtoupper( $response['data']['currency'] );
-            $gateway_symbol   = get_woocommerce_currency_symbol( $payment_currency );
+		if ( ! $order ) {
+			wp_redirect( wc_get_page_permalink( 'cart' ) );
+			exit;
+		}
 
-			if ( $amount_paid < absint( $order_total ) ) {
+		$result = $this->process_korapay_transaction( $txn_ref, $order );
 
-                $order->update_status( 'on-hold', '' );
+		if ( ! $result ) {
+			wp_redirect( $this->get_return_url( $order ) );
+			exit;
+		}
 
-                $order->add_meta_data( '_transaction_id', $korapay_ref, true );
+		// If successful, redirect to the order success page.
+		wp_redirect( $this->get_return_url( $order ) );
+		exit;
+	}
+	
+	/**
+	 * Process KoraPay transaction.
+	 *
+	 * This function verifies and processes KoraPay transactions.
+	 *
+	 * @param string $txn_ref The transaction reference.
+	 * @param WC_Order $order The WooCommerce order object.
+	 * @return bool Returns true on success, false on failure.
+	 */
+	public function process_korapay_transaction( $txn_ref, $order ) {
 
-                // TODO: Make it a filter.
-                $notice      = sprintf( __( 'Thank you for shopping with us.%1$sYour payment transaction was successful, but the amount paid is not the same as the total order amount.%2$sYour order is currently on hold.%3$sKindly contact us for more information regarding your order and payment status.', 'woo-korapay' ), '<br />', '<br />', '<br />' );
-                $notice_type = 'notice';
+		$response = WC_Korapay_API::verify_transaction( $txn_ref );
 
-                // Customer Order Note.
-                $order->add_order_note( $notice, 1 );
+		if ( is_wp_error( $response ) || false === $response['status'] ) {
+			$order->update_status( 'failed', __( 'An error occurred while verifying payment on Kora.', 'woo-korapay' ) );
+			return false;
+		}
 
-                // Admin Order Note.
-                // TODO: make it a filter.
-                $admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Amount paid is less than the total order amount.%3$sAmount Paid was <strong>%4$s (%5$s)</strong> while the total order amount is <strong>%6$s (%7$s)</strong>%8$s<strong>Kora Transaction Reference:</strong> %9$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $currency_symbol, $amount_paid, $currency_symbol, $order_total, '<br />', $korapay_ref );
-                $order->add_order_note( $admin_order_note );
+		if ( 'success' !== $response['data']['status'] ) {
+			$order->update_status( 'failed', __( 'Payment was declined by Kora.', 'woo-korapay' ) );
+			return false;
+		}
 
-                function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order_id ) : $order->reduce_order_stock();
+		// Handle already processed orders.
+		if ( in_array( $order->get_status(), array( 'processing', 'completed', 'on-hold' ) ) ) {
+			return false;
+		}
 
-                wc_add_notice( $notice, $notice_type );
+		// Validate amounts and currencies.
+		$order_total      = $order->get_total();
+		$order_currency   = $order->get_currency();
+		$amount_paid      = $response['data']['amount'];
+		$payment_currency = strtoupper( $response['data']['currency'] );
+		$korapay_ref      = $response['data']['reference'];
 
-            } else {
+		if ( $amount_paid < absint( $order_total ) ) {
+			// Partial payment, hold order.
+			$order->update_status( 'on-hold', '' );
+			$order->add_meta_data( '_transaction_id', $korapay_ref, true );
 
-                if ( $payment_currency !== $order_currency ) { // How? anyways, Wahala!
+			$notice = sprintf(
+				__( 'Your payment was successful, but the amount paid is less than the order total. Your order is on hold.', 'woo-korapay' )
+			);
+			$order->add_order_note( $notice );
+			wc_add_notice( $notice, 'notice' );
 
-                    $order->update_status( 'on-hold', '' );
+			function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order->get_id() ) : $order->reduce_order_stock();
+		} elseif ( $payment_currency !== $order_currency ) {
+			// Currency mismatch, hold order.
+			$order->update_status( 'on-hold', '' );
+			$order->update_meta_data( '_transaction_id', $korapay_ref );
 
-                    $order->update_meta_data( '_transaction_id', $korapay_ref );
+			$notice = sprintf(
+				__( 'Payment was successful, but the payment currency (%s) is different from the order currency (%s). Order is on hold.', 'woo-korapay' ),
+				$payment_currency, $order_currency
+			);
+			$order->add_order_note( $notice );
+			wc_add_notice( $notice, 'notice' );
 
-                    $notice      = sprintf( __( 'Thank you for shopping with us.%1$sYour payment was successful, but the payment currency is different from the order currency.%2$sYour order is currently on-hold.%3$sKindly contact us for more information regarding your order and payment status.', 'woo-korapay' ), '<br />', '<br />', '<br />' );
-                    $notice_type = 'notice';
+			function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order->get_id() ) : $order->reduce_order_stock();
+		} elseif ( $korapay_ref !== $order->get_meta( '_korapay_txn_ref' ) ) { // If this isn't same, something was tampered with.
 
-                    // Add Customer Order Note
-                    $order->add_order_note( $notice, 1 );
+			$order->update_status( 'on-hold', '' );
 
-                    // Add Admin Order Note
-                    // TODO: make this a filter.
-                    $admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Order currency is different from the payment currency.%3$sOrder Currency is <strong>%4$s (%5$s)</strong> while the payment currency is <strong>%6$s (%7$s)</strong>%8$s<strong>Kora Transaction Reference:</strong> %9$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $order_currency, $currency_symbol, $payment_currency, $gateway_symbol, '<br />', $korapay_ref );
-                    $order->add_order_note( $admin_order_note );
+			$order->update_meta_data( '_transaction_id', $korapay_ref );
 
-                    function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order_id ) : $order->reduce_order_stock();
+			$notice      = sprintf( __( 'Thank you for shopping with us.%1$sYour payment was successful, but transaction reference comparison seems differnet.%2$sYour order is currently on-hold.%3$sKindly contact us for more information regarding your order and payment status.', 'woo-korapay' ), '<br />', '<br />', '<br />' );
+			$notice_type = 'notice';
 
-                    wc_add_notice( $notice, $notice_type );
+			// Add Customer Order Note.
+			$order->add_order_note( $notice, 1 );
 
-                } elseif ( $korapay_ref !== $order->get_meta( '_korapay_txn_ref' ) ) { // If this isn't same, something was tampered with.
+			// Add Admin Order Note.
+			$admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Transaction reference comparison failed.%3$sOrder Transaction reference is <strong>%4$s</strong> while the transaction reference from Kora is <strong>%5$s</strong>%6$s<strong>Kora Transaction Reference:</strong> %7$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $order->get_meta( '_korapay_txn_ref' ), $korapay_ref, '<br />', $korapay_ref );
+			$order->add_order_note( $admin_order_note );
 
-                    $order->update_status( 'on-hold', '' );
+			function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order_id ) : $order->reduce_order_stock();
 
-                    $order->update_meta_data( '_transaction_id', $korapay_ref );
+			wc_add_notice( $notice, $notice_type );
 
-                    $notice      = sprintf( __( 'Thank you for shopping with us.%1$sYour payment was successful, but transaction reference comparison seems differnet.%2$sYour order is currently on-hold.%3$sKindly contact us for more information regarding your order and payment status.', 'woo-korapay' ), '<br />', '<br />', '<br />' );
-                    $notice_type = 'notice';
+		} else {
+			// Success, complete the order.
+			$order->payment_complete( $korapay_ref );
+			$order->add_order_note( sprintf( __( 'Payment via Kora successful (Transaction Reference: %s)', 'woo-korapay' ), $korapay_ref ) );
 
-                    // Add Customer Order Note.
-                    $order->add_order_note( $notice, 1 );
+			if ( $this->is_autocomplete_order_enabled( $order ) ) {
+				$order->update_status( 'completed' );
+			}
+		}
 
-                    // Add Admin Order Note.
-                    $admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Transaction reference comparison failed.%3$sOrder Transaction reference is <strong>%4$s</strong> while the transaction reference from Kora is <strong>%5$s</strong>%6$s<strong>Kora Transaction Reference:</strong> %7$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $order->get_meta( '_korapay_txn_ref' ), $korapay_ref, '<br />', $korapay_ref );
-                    $order->add_order_note( $admin_order_note );
+		$order->save();
+		WC()->cart->empty_cart();
 
-                    function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order_id ) : $order->reduce_order_stock();
+		return true;
+	}
 
-                    wc_add_notice( $notice, $notice_type );
-
-				} else {
-
-                    $order->payment_complete( $korapay_ref );
-                    $order->add_order_note( sprintf( __( 'Payment via Kora successful! (Transaction Reference: %s)', 'woo-korapay' ), $korapay_ref ) );
-
-                    if ( $this->is_autocomplete_order_enabled( $order ) ) {
-                        $order->update_status( 'completed' );
-                    }
-                }
-            }
-
-            // Save and empty cart!
-            $order->save();
-            WC()->cart->empty_cart();
-        }
-
-        wp_redirect( $this->get_return_url( $order ) );
-        exit;
-    }
-
-/**
+	/*
 	 * Process a refund request from the Order details screen.
      * 
      * Kora doesn't have a refund endpoint, so this is dormant for now.
@@ -590,7 +592,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public function _process_refund( $order_id, $amount = null, $reason = '' ) {
+	/*public function _process_refund( $order_id, $amount = null, $reason = '' ) {
         return false;
 
 		if ( ! ( $this->active_public_key && $this->active_secret_key ) ) {
@@ -659,8 +661,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
 		}
 
-	}
-
+	}*/
 	
 	/**
 	 * Process Webhook.
@@ -668,14 +669,13 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	 * @TODO: STILL TEST AGAIN.
 	 */
 	public function process_webhook() {
-
 		if ( ! array_key_exists( 'HTTP_X_KORAPAY_SIGNATURE', $_SERVER ) || ( strtoupper( $_SERVER['REQUEST_METHOD'] ) !== 'POST' ) ) {
 			exit;
 		}
 
 		$json = file_get_contents( 'php://input' );
 
-		// Validate event do all at once to avoid timing attack, inspo from Tubiz :).
+		// Validate event to avoid timing attack.
 		if ( $_SERVER['HTTP_X_KORAPAY_SIGNATURE'] !== hash_hmac( 'sha512', $json, $this->secret_key ) ) {
 			exit;
 		}
@@ -688,108 +688,22 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
 		sleep( 10 );
 
-		$korapay_response = WC_Korapay_API::verify_transaction( $event['data']['reference'] );
-
-		if ( false === $korapay_response ) {
-			return;
-		}
-
-		$order_details = explode( '_', $korapay_response['data']['reference'] );
-
+		$txn_ref = $event['data']['reference'];
+		$order_details = explode( '_', $txn_ref );
 		$order_id = (int) $order_details[1];
-
 		$order = wc_get_order( $order_id );
 
 		if ( ! $order ) {
 			return;
 		}
 
-		$korapay_txn_ref = $order->get_meta( '_korapay_txn_ref' );
+		$result = $this->process_korapay_transaction( $txn_ref, $order );
 
-		if ( $korapay_response['data']['reference'] != $korapay_txn_ref ) {
-			exit;
+		if ( ! $result ) {
+			exit; // Webhook should exit if transaction is not successful.
 		}
 
 		http_response_code( 200 );
-
-		if ( in_array( strtolower( $order->get_status() ), array( 'processing', 'completed', 'on-hold' ), true ) ) {
-			exit;
-		}
-
-		$order_currency = $order->get_currency();
-
-		$currency_symbol = get_woocommerce_currency_symbol( $order_currency );
-
-		$order_total = $order->get_total();
-
-		$amount_paid = $korapay_response['data']['amount'] / 100;
-
-		$korapay_ref = $korapay_response['data']['reference'];
-
-		$payment_currency = strtoupper( $korapay_response['data']['currency'] );
-
-		$gateway_symbol = get_woocommerce_currency_symbol( $payment_currency );
-
-		// check if the amount paid is equal to the order amount.
-		if ( $amount_paid < absint( $order_total ) ) {
-
-			$order->update_status( 'on-hold', '' );
-
-			$order->add_meta_data( '_transaction_id', $korapay_ref, true );
-
-			$notice      = sprintf( __( 'Thank you for shopping with us.%1$sYour payment transaction was successful, but the amount paid is not the same as the total order amount.%2$sYour order is currently on hold.%3$sKindly contact us for more information regarding your order and payment status.', 'woo-korapay' ), '<br />', '<br />', '<br />' );
-			$notice_type = 'notice';
-
-			// Add Customer Order Note.
-			$order->add_order_note( $notice, 1 );
-
-			// Add Admin Order Note.
-			$admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Amount paid is less than the total order amount.%3$sAmount Paid was <strong>%4$s (%5$s)</strong> while the total order amount is <strong>%6$s (%7$s)</strong>%8$s<strong>Kora Transaction Reference:</strong> %9$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $currency_symbol, $amount_paid, $currency_symbol, $order_total, '<br />', $korapay_ref );
-			$order->add_order_note( $admin_order_note );
-
-			function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order_id ) : $order->reduce_order_stock();
-
-			wc_add_notice( $notice, $notice_type );
-
-			WC()->cart->empty_cart();
-
-		} else {
-
-			if ( $payment_currency !== $order_currency ) {
-
-				$order->update_status( 'on-hold', '' );
-
-				$order->update_meta_data( '_transaction_id', $korapay_ref );
-
-				$notice      = sprintf( __( 'Thank you for shopping with us.%1$sYour payment was successful, but the payment currency is different from the order currency.%2$sYour order is currently on-hold.%3$sKindly contact us for more information regarding your order and payment status.', 'woo-korapay' ), '<br />', '<br />', '<br />' );
-				$notice_type = 'notice';
-
-				// Add Customer Order Note.
-				$order->add_order_note( $notice, 1 );
-
-				// Add Admin Order Note.
-				$admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Order currency is different from the payment currency.%3$sOrder Currency is <strong>%4$s (%5$s)</strong> while the payment currency is <strong>%6$s (%7$s)</strong>%8$s<strong>Kora Transaction Reference:</strong> %9$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $order_currency, $currency_symbol, $payment_currency, $gateway_symbol, '<br />', $korapay_ref );
-				$order->add_order_note( $admin_order_note );
-
-				function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order_id ) : $order->reduce_order_stock();
-
-				wc_add_notice( $notice, $notice_type );
-
-			} else {
-
-				$order->payment_complete( $korapay_ref );
-
-				$order->add_order_note( sprintf( __( 'Payment via Kora successful (Transaction Reference: %s)', 'woo-korapay' ), $korapay_ref ) );
-
-				WC()->cart->empty_cart();
-
-				if ( $this->is_autocomplete_order_enabled( $order ) ) {
-					$order->update_status( 'completed' );
-				}
-			}
-		}
-
-		$order->save();
 		exit;
 	}
 
