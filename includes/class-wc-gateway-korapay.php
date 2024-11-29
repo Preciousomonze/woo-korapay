@@ -150,7 +150,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
         // Our scripts.
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
-       // add_action( 'wp_enqueue_scripts', array( $this, 'frontend_scripts' ) );
+       add_action( 'wp_enqueue_scripts', array( $this, 'payment_scripts' ) );
     }
 
     /**
@@ -170,7 +170,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		$this->live_secret_key = $this->get_option( 'live_secret_key' );
 
 		$this->custom_webhook_endpoint = $this->get_option( 'webhook_endpoint' );
-		$this->merchant_bear_cost      = $this->get_option( 'customer_bears_cost' ) === 'yes' ? false : true;
+		$this->merchant_bears_cost      = $this->get_option( 'customer_bears_cost' ) === 'yes' ? false : true;
 
 		// $this->saved_cards = $this->get_option( 'saved_cards' ) === 'yes' ? true : false;
 
@@ -286,6 +286,59 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		}
 	}
 
+
+	
+	/**
+	 * Outputs scripts used for payment.
+	 */
+	public function payment_scripts() {
+
+		if ( isset( $_GET['pay_for_order'] ) || ! is_checkout_pay_page() || $this->enabled === 'no' ) {
+			return;
+		}
+
+		$order_key = urldecode( $_GET['key'] );
+		$order_id  = absint( get_query_var( 'order-pay' ) );
+		$order     = wc_get_order( $order_id );
+
+		if ( $this->id !== $order->get_payment_method() ) {
+			return;
+		}
+
+		$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min' );
+		$folder = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? 'src' : 'build' );
+
+		wp_enqueue_script( 'wc_korapay_core', 'https://korablobstorage.blob.core.windows.net/modal-bucket/korapay-collections.min.js', array( 'jquery' ), WC_KORAPAY_VERSION, false );
+		wp_enqueue_script( 'wc_korapay', WC_KORAPAY_PLUGIN_URL . 'assets/js/' . $folder . '/frontend/' . $suffix . '.js', array( 'jquery', 'wc_korapay_core' ), WC_KORAPAY_VERSION, false );
+
+		if ( is_checkout_pay_page() && get_query_var( 'order-pay' ) ) {
+
+			$email         = $order->get_billing_email();
+			$amount        = $order->get_total() * 100;
+			$txnref        = 'kp_' . $order_id . '_' . time();
+			$the_order_id  = $order->get_id();
+			$the_order_key = $order->get_order_key();
+			$currency      = $order->get_currency();
+
+			if ( $the_order_id == $order_id && $the_order_key == $order_key ) {
+				$korapay_params['email']    = $email;
+				$korapay_params['amount']   = absint( $amount );
+				$korapay_params['txnref']   = $txnref;
+				$korapay_params['currency'] = $currency;
+			}
+
+			$korapay_params = array(
+				'key' => $this->public_key,
+			);
+	
+			$order->update_meta_data( '_korapay_txn_ref', $txnref );
+			$order->save();
+		}
+
+		wp_localize_script( 'wc_korapay', 'wc_korapay_params', $korapay_params );
+	}
+
+
 	/**
 	 * Load admin scripts.
 	 */
@@ -295,13 +348,13 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 			return;
 		}
 
-		$suffix = '';//defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
 		$admin_params = array(
 			'plugin_url' => WC_KORAPAY_PLUGIN_URL,
 		);
 
-		wp_enqueue_script( 'wc_korapay_admin', WC_KORAPAY_PLUGIN_URL . 'assets/js/admin/meta' . $suffix . '.js', array(), WC_KORAPAY_VERSION, true );
+		wp_enqueue_script( 'wc_korapay_admin', WC_KORAPAY_PLUGIN_URL . 'assets/js/build/admin/meta' . $suffix . '.js', array( 'jquery' ), WC_KORAPAY_VERSION, true );
 		wp_localize_script( 'wc_korapay_admin', 'wc_korapay_admin_params', $admin_params );
 	}
 
@@ -499,6 +552,16 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
 		if ( is_wp_error( $response ) || false === $response['status'] ) {
 			$order->update_status( 'failed', __( 'An error occurred while verifying payment on Kora.', 'woo-korapay' ) );
+
+			$response_data = is_array( $response ) ? json_encode( $response ) : print_r( $response, true );
+
+			error_log( 'Korapay Error: for reference: ' . $txn_ref . '. Response: ' . $response_data );
+			( new \WC_Logger() )->log(
+				'error',
+				'Korapay Error: for reference: ' . $txn_ref . '. Response: ' . $response_data,
+				array( 'source' => 'korapay' )
+			);
+		
 			return false;
 		}
 
@@ -681,7 +744,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
 		$event = json_decode( $json, true );
 
-		if ( 'charge.success' !== strtolower( $event['event'] ) ) {
+		if ( 'charge.success' !== strtolower( $event['event'] ) ) {			
 			return;
 		}
 

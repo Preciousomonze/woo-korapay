@@ -60,7 +60,8 @@ final class WC_Gateway_Korapay_Blocks_Support extends AbstractPaymentMethodType 
 				'version'      => WC_KORAPAY_VERSION,
 			);
 
-		$script_url = plugins_url( '/assets/js/build/blocks/frontend.js', WC_KORAPAY_PLUGIN_FILE );
+		$suffix     = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min' );
+		$script_url = plugins_url( '/assets/js/build/blocks/frontend' . $suffix . '.js', WC_KORAPAY_PLUGIN_FILE );
 
 		wp_register_script(
 			'wc-korapay-blocks',

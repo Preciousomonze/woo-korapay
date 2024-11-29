@@ -61,14 +61,17 @@ class WC_Korapay_Settings {
                 'title'       => __( 'Title', 'woo-korapay' ),
                 'type'        => 'text',
                 'description' => __( 'This controls the payment method title which the user sees during checkout.', 'woo-korapay' ),
-                'default'     => apply_filters( 'wc_korapay_default_gateway_title', __( 'Debit/Credit Cards', 'woo-korapay' ) ),
+                'default'     => apply_filters( 'wc_korapay_default_gateway_title', __( 'Kora - Secure Bank, Card & USSD Payments', 'woo-korapay' ) ),
                 'desc_tip'    => true,
+                'custom_attributes' => array(
+                    'readonly' => true,
+                )
             ),
             'description'                      => array(
                 'title'       => __( 'Description', 'woo-korapay' ),
                 'type'        => 'textarea',
                 'description' => __( 'This controls the payment method description which the user sees during checkout.', 'woo-korapay' ),
-                'default'     => apply_filters( 'wc_korapay_default_gateway_description', __( 'Make payment using your debit and credit cards', 'woo-korapay' ) ),
+                'default'     => apply_filters( 'wc_korapay_default_gateway_description', __( 'Pay seamlessly using your bank, card, or USSD', 'woo-korapay' ) ),
                 'desc_tip'    => true,
             ),
             'webhook_endpoint'                 => array(
@@ -93,7 +96,7 @@ class WC_Korapay_Settings {
             'payment_page_type'                => array(
                 'title'       => __( 'Payment Option', 'woo-korapay' ),
                 'type'        => 'select',
-                'description' => __( 'Popup shows the payment popup on the page while Redirect will redirect the customer to Kora to make payment.', 'woo-korapay' ),
+                'description' => __( 'Popup shows the Kora payment popup on the page while Redirect will redirect the customer to Kora to make payment.', 'woo-korapay' ),
                 'default'     => '',
                 'desc_tip'    => false,
                 'options'     => array(

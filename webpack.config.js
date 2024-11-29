@@ -43,7 +43,7 @@ const generateEntries = ( baseDir, folder ) => {
 
     files.forEach( ( file ) => {
         const ext  = path.extname( file );
-        const name = path.basename( file, ext ); // Remove the extension
+        const name = path.basename( file, ext ); // Remove the extension.
 
         if ( ext === '.js' ) {
             // Create entry for each JS file with folder subdirectory in the key.
@@ -54,7 +54,6 @@ const generateEntries = ( baseDir, folder ) => {
     return entries;
 };
 
-// Automatically get all JS files from `frontend`, `blocks/frontend`, and `admin`
 const entries = {
     ...generateEntries( __dirname, 'assets/js/src/frontend' ),
     ...generateEntries( __dirname, 'assets/js/src/blocks' ),
