@@ -74,9 +74,7 @@ class WC_Korapay_API {
 
         // Send the request using appropriate WP HTTP function.
         $response = ( 'GET' === strtoupper( $method ) ) ? wp_remote_get( $url, $args ) : wp_remote_post( $url, $args );
-       // var_dump($response);
         
-        // Check for errors in the response.
         if ( is_wp_error( $response ) ) {
             return $response;
         }
@@ -87,7 +85,6 @@ class WC_Korapay_API {
 
         // Check if the API call was successful.
         if ( isset( $data['status'] ) && ( true === $data['status'] || 'success' === $data['status'] ) ) {
-            // Return the data on successful API call.
             return $data;
         }
 

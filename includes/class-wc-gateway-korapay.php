@@ -410,6 +410,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		 * Filters allowed payment channels.
 		 * 
 		 * More info here: https://developers.korapay.com/docs/checkout-redirect
+		 * Option mobile_money is not available in NGN.
 		 * 
 		 * @param int $order_id
 		 * @return array
@@ -424,7 +425,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		 * @param int $order_id
 		 * @return string
 		 */		
-		$_default_channel = apply_filters( 'wc_korapay_default_payment_channels', '', $order_id );
+		$_default_channel = apply_filters( 'wc_korapay_default_payment_channel', '', $order_id );
 
 		$korapay_params = array(
             'amount'              => absint( $amount ),
@@ -460,6 +461,17 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		$response = WC_Korapay_API::send_request( 'charges/initialize', $korapay_params );
 
 		if ( is_wp_error( $response ) ) {
+			$errors     = $response->errors ?? null;
+			$error_data = $response->error_data ?? null;
+
+			if ( ! is_null( $errors ) && true === apply_filters( 'wc_korapay_log_error', true, $response, $korapay_params ) ) {
+				$errors_json     = json_encode( $errors );
+				$error_data_json = json_encode( $error_data );
+				$error_msg       = 'Korapay response error: ' . $errors_json .' \n Error data: ' . $error_data_json;
+
+				error_log( $error_msg );
+	            ( new \WC_Logger() )->debug( $error_msg, array( 'source' => 'woo-korapay' ) );
+			}
 
             do_action( 'wc_korapay_redirect_payment_error', $response, $korapay_params, $order_id );
 
@@ -554,12 +566,12 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 			$order->update_status( 'failed', __( 'An error occurred while verifying payment on Kora.', 'woo-korapay' ) );
 
 			$response_data = is_array( $response ) ? json_encode( $response ) : print_r( $response, true );
+			$error_msg     = 'Korapay Error: for reference: ' . $txn_ref . '. Response: ' . $response_data;
 
-			error_log( 'Korapay Error: for reference: ' . $txn_ref . '. Response: ' . $response_data );
-			( new \WC_Logger() )->log(
-				'error',
-				'Korapay Error: for reference: ' . $txn_ref . '. Response: ' . $response_data,
-				array( 'source' => 'korapay' )
+			error_log( $error_msg );
+			( new \WC_Logger() )->debug(
+				$error_msg,
+				array( 'source' => 'woo-korapay' )
 			);
 		
 			return false;
@@ -608,9 +620,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
 			function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order->get_id() ) : $order->reduce_order_stock();
 		} elseif ( $korapay_ref !== $order->get_meta( '_korapay_txn_ref' ) ) { // If this isn't same, something was tampered with.
-
 			$order->update_status( 'on-hold', '' );
-
 			$order->update_meta_data( '_transaction_id', $korapay_ref );
 
 			$notice      = sprintf( __( 'Thank you for shopping with us.%1$sYour payment was successful, but transaction reference comparison seems differnet.%2$sYour order is currently on-hold.%3$sKindly contact us for more information regarding your order and payment status.', 'woo-korapay' ), '<br />', '<br />', '<br />' );
@@ -624,9 +634,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 			$order->add_order_note( $admin_order_note );
 
 			function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order_id ) : $order->reduce_order_stock();
-
 			wc_add_notice( $notice, $notice_type );
-
 		} else {
 			// Success, complete the order.
 			$order->payment_complete( $korapay_ref );
