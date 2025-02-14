@@ -5,10 +5,12 @@
     "scripts": {
         "build:scripts": "wp-scripts build",
         "start:scripts": "wp-scripts start",
-        "makepot": "npx @wp-blocks/make-pot ./ ./languages/ --domain woo-korapay",
+        "makepot": "npx @wp-blocks/make-pot ./ ./languages/ --domain korapay-payments-gateway",
         "compress-zip": "sh compress-zip-offload.sh -c",
         "offload-zip": "sh compress-zip-offload.sh -o",
+        "delete-zip": "sh compress-zip-offload.sh -dz",
         "compress-zip-offload": "npm run compress-zip && npm run offload-zip",
+        "compress-offload-delete": "npm run compress-zip && npm run offload-zip && npm run delete-zip",
         "build": "npm run build:scripts && npm run makepot && npm run compress-zip"
     },
     "author": "Precious Omonzejele",

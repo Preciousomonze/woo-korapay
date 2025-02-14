@@ -6,7 +6,7 @@
  * Version: 1.0.0
  * Author: Kora
  * Author URI: https://korahq.com
- * Text Domain: woo-korapay
+ * Text Domain: korapay-payments-gateway
  * Domain Path: /languages/
  * WC requires at least: 7.0
  * WC tested up to: 9.3
@@ -86,7 +86,7 @@ if ( ! function_exists( 'WC_KORAPAY\\gateway_action_links' ) ) {
     function gateway_action_links( $links ) {
         // Define the settings link.
         $plugin_links = [
-            '<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=korapay' ) ) . '">' . __( 'Settings', 'woo-korapay' ) . '</a>',
+            '<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=korapay' ) ) . '">' . __( 'Settings', 'korapay-payments-gateway' ) . '</a>',
         ];
         return array_merge( $plugin_links, $links );
     }
@@ -150,7 +150,7 @@ if ( ! function_exists( 'WC_KORAPAY\\missing_wc_notice' ) ) {
 
 		$admin_notice_content = sprintf(
 			// translators: 1$-2$: opening and closing <strong> tags, 3$-4$: link tags, takes to woocommerce plugin on wp.org, 5$-6$: opening and closing link tags, leads to plugins.php in admin
-			esc_html__( '%1$sKora Gateway for WooCommerce is inactive.%2$s The %3$sWooCommerce plugin%4$s must be active for the Koraypay Gateway to work. Please %5$sinstall & activate WooCommerce &raquo;%6$s', 'woo-korapay' ),
+			esc_html__( '%1$sKora Gateway for WooCommerce is inactive.%2$s The %3$sWooCommerce plugin%4$s must be active for the Koraypay Gateway to work. Please %5$sinstall & activate WooCommerce &raquo;%6$s', 'korapay-payments-gateway' ),
 			'<strong>',
 			'</strong>',
 			'<a href="http://wordpress.org/extend/plugins/woocommerce/">',

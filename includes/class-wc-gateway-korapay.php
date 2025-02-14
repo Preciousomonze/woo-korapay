@@ -121,8 +121,8 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
     public function __construct() {
         $this->id                 = 'korapay';
         $this->icon               = ''; // URL to the icon that will be displayed on checkout. TODO
-        $this->method_title       = __( 'Kora', 'woo-korapay' );
-        $this->method_description = sprintf( __( 'Accept online payments from local and international customers using Mastercard, Visa, Verve Cards and Bank Accounts. <a href="%1$s" target="_blank">Sign up</a> for a Kora account, and <a href="%2$s" target="_blank">get your API keys</a>.', 'woo-korapay' ), 'https://korahq.com', 'https://merchant.korapay.com/dashboard/settings/api-integrations' );
+        $this->method_title       = __( 'Kora', 'korapay-payments-gateway' );
+        $this->method_description = sprintf( __( 'Accept online payments from local and international customers using Mastercard, Visa, Verve Cards and Bank Accounts. <a href="%1$s" target="_blank">Sign up</a> for a Kora account, and <a href="%2$s" target="_blank">get your API keys</a>.', 'korapay-payments-gateway' ), 'https://korahq.com', 'https://merchant.korapay.com/dashboard/settings/api-integrations' );
         
         $this->payment_page_type = $this->get_option( 'payment_page_type' );
 
@@ -217,7 +217,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
 		// Check required fields.
 		if ( ! ( $this->active_public_key && $this->active_secret_key ) ) {
-			echo '<div class="error"><p>' . sprintf( __( 'Please enter your Kora merchant details <a href="%s">here</a> to be able to use the Kora Gateway For WooCommerce plugin.', 'woo-korapay' ), admin_url( 'admin.php?page=wc-settings&tab=checkout&section=korapay' ) ) . '</p></div>';
+			echo '<div class="error"><p>' . sprintf( __( 'Please enter your Kora merchant details <a href="%s">here</a> to be able to use the Kora Gateway For WooCommerce plugin.', 'korapay-payments-gateway' ), admin_url( 'admin.php?page=wc-settings&tab=checkout&section=korapay' ) ) . '</p></div>';
 			return;
 		}
 	}
@@ -226,7 +226,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	 * Display Korapay payment icon.
 	 */
 	public function get_icon() {
-        $icon = '<img src="' . $this->get_logo_url() . '" alt="' . apply_filters( 'wc_korapay_icon_alt_txt', __( 'Kora Payment Options', 'woo-korapay' ) ) . '" width="100px">';
+        $icon = '<img src="' . $this->get_logo_url() . '" alt="' . apply_filters( 'wc_korapay_icon_alt_txt', __( 'Kora Payment Options', 'korapay-payments-gateway' ) ) . '" width="100px">';
 		return apply_filters( 'woocommerce_gateway_icon', $icon, $this->id );
 	}
 
@@ -249,10 +249,10 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		$kora_webhook_url = 'https://merchant.korapay.com/dashboard/settings/api-integrations';
 		$user_webhook_url = ( ! empty( $this->custom_webhook_endpoint ) ? WC()->api_request_url(  WC_KORAPAY_WEBHOOK_PREFIX . $this->custom_webhook_endpoint ) : '' );
 		?>
-		<h2><?php _e( 'Kora', 'woo-korapay' ); ?>
+		<h2><?php _e( 'Kora', 'korapay-payments-gateway' ); ?>
 		<?php
 		if ( function_exists( 'wc_back_link' ) ) {
-			wc_back_link( __( 'Return to payments', 'woo-korapay' ), admin_url( 'admin.php?page=wc-settings&tab=checkout' ) );
+			wc_back_link( __( 'Return to payments', 'korapay-payments-gateway' ), admin_url( 'admin.php?page=wc-settings&tab=checkout' ) );
 		}
 		?>
 		</h2>
@@ -261,13 +261,13 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 				<?php
 					if ( ! empty( $user_webhook_url ) ) {
             			printf(
-                			__( 'Optional: To avoid stories that touch in situations where bad network makes it impossible to verify transactions, set your webhook URL in your Korapay settings <a href="%1$s" target="_blank" rel="noopener noreferrer">here</a> to the URL below:<br><span style="color: red"><pre><code>%2$s</code></pre></span>', 'woo-korapay' ),
+                			__( 'Optional: To avoid stories that touch in situations where bad network makes it impossible to verify transactions, set your webhook URL in your Korapay settings <a href="%1$s" target="_blank" rel="noopener noreferrer">here</a> to the URL below:<br><span style="color: red"><pre><code>%2$s</code></pre></span>', 'korapay-payments-gateway' ),
                 			$kora_webhook_url,
                 			$user_webhook_url
             			);
         			} else {
             			printf(
-                			__( 'Optional: To avoid stories that touch in situations where bad network makes it impossible to verify transactions, please set a custom webhook URL by filling the <code>Custom webhook URL</code> field below, then add this URL to your Korapay settings <a href="%1$s" target="_blank" rel="noopener noreferrer">here</a>.', 'woo-korapay' ),
+                			__( 'Optional: To avoid stories that touch in situations where bad network makes it impossible to verify transactions, please set a custom webhook URL by filling the <code>Custom webhook URL</code> field below, then add this URL to your Korapay settings <a href="%1$s" target="_blank" rel="noopener noreferrer">here</a>.', 'korapay-payments-gateway' ),
                 			$kora_webhook_url
             			);
         			}
@@ -281,7 +281,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 			echo '</table>';
 		} else {
 			?>
-			<div class="inline error"><p><strong><?php _e( 'Kora Payment Gateway Disabled', 'woo-korapay' ); ?></strong>: <?php echo $this->msg; ?></p></div>
+			<div class="inline error"><p><strong><?php _e( 'Kora Payment Gateway Disabled', 'korapay-payments-gateway' ); ?></strong>: <?php echo $this->msg; ?></p></div>
 			<?php
 		}
 	}
@@ -367,11 +367,11 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	public function receipt_content( $order_id ) {
 		$order = wc_get_order( $order_id );
 		echo '<div id="wc-korapay-form">';
-		echo '<p>' . __( 'Thank you for your order, please click the button below to pay with Kora.', 'woo-korapay' ) . '</p>';
-		echo '<div id="wc_korapay_form"><form id="order_review" method="post" action="' . WC()->api_request_url( 'wc_gateway_korapay' ) . '"></form><button class="button" id="wc-korapay-payment-btn">' . apply_filters( 'wc_korapay_payment_btn_txt', __( 'Pay Now', 'woo-korapay' ), $order_id ) . '</button>';
+		echo '<p>' . __( 'Thank you for your order, please click the button below to pay with Kora.', 'korapay-payments-gateway' ) . '</p>';
+		echo '<div id="wc_korapay_form"><form id="order_review" method="post" action="' . WC()->api_request_url( 'wc_gateway_korapay' ) . '"></form><button class="button" id="wc-korapay-payment-btn">' . apply_filters( 'wc_korapay_payment_btn_txt', __( 'Pay Now', 'korapay-payments-gateway' ), $order_id ) . '</button>';
 
 		if ( ! $this->remove_cancel_order_button ) {
-			echo '  <a class="button cancel" id="wc-korapay-cancel-payment-btn" href="' . esc_url( $order->get_cancel_order_url() ) . '">' . apply_filters( 'wc_korapay_cancel_payment_btn_txt', __( 'Cancel order &amp; restore your cart', 'woo-korapay' ), $order_id ) . '</a></div>';
+			echo '  <a class="button cancel" id="wc-korapay-cancel-payment-btn" href="' . esc_url( $order->get_cancel_order_url() ) . '">' . apply_filters( 'wc_korapay_cancel_payment_btn_txt', __( 'Cancel order &amp; restore your cart', 'korapay-payments-gateway' ), $order_id ) . '</a></div>';
 		}
 
 		echo '</div>';
@@ -432,7 +432,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
             'currency'            => $order->get_currency(),
             'reference'           => $txn_ref,
             'redirect_url'        => $redirect_url,
-            'narration'           => sprintf( apply_filters( 'wc_korapay_order_narration_text', __( 'Payment for Order #%s', 'woo-korapay' ) ), $order->get_order_number() ),
+            'narration'           => sprintf( apply_filters( 'wc_korapay_order_narration_text', __( 'Payment for Order #%s', 'korapay-payments-gateway' ) ), $order->get_order_number() ),
             'merchant_bears_cost' => $this->merchant_bears_cost,
 			'customer'            => array(
                 'email' => $order->get_billing_email(),
@@ -470,12 +470,12 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 				$error_msg       = 'Korapay response error: ' . $errors_json .' \n Error data: ' . $error_data_json;
 
 				error_log( $error_msg );
-	            ( new \WC_Logger() )->debug( $error_msg, array( 'source' => 'woo-korapay' ) );
+	            ( new \WC_Logger() )->debug( $error_msg, array( 'source' => 'korapay-payments-gateway' ) );
 			}
 
             do_action( 'wc_korapay_redirect_payment_error', $response, $korapay_params, $order_id );
 
-            wc_add_notice( apply_filters( 'wc_korapay_redirect_payment_error_msg', __( 'Unable to process payment at this time, try again later.', 'woo-korapay' ), $response, $order_id ) , 'error' );
+            wc_add_notice( apply_filters( 'wc_korapay_redirect_payment_error_msg', __( 'Unable to process payment at this time, try again later.', 'korapay-payments-gateway' ), $response, $order_id ) , 'error' );
 
 			return array(
 				'result'   => 'fail',
@@ -563,7 +563,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		$response = WC_Korapay_API::verify_transaction( $txn_ref );
 
 		if ( is_wp_error( $response ) || false === $response['status'] ) {
-			$order->update_status( 'failed', __( 'An error occurred while verifying payment on Kora.', 'woo-korapay' ) );
+			$order->update_status( 'failed', __( 'An error occurred while verifying payment on Kora.', 'korapay-payments-gateway' ) );
 
 			$response_data = is_array( $response ) ? json_encode( $response ) : print_r( $response, true );
 			$error_msg     = 'Korapay Error: for reference: ' . $txn_ref . '. Response: ' . $response_data;
@@ -571,14 +571,14 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 			error_log( $error_msg );
 			( new \WC_Logger() )->debug(
 				$error_msg,
-				array( 'source' => 'woo-korapay' )
+				array( 'source' => 'korapay-payments-gateway' )
 			);
 		
 			return false;
 		}
 
 		if ( 'success' !== $response['data']['status'] ) {
-			$order->update_status( 'failed', __( 'Payment was declined by Kora.', 'woo-korapay' ) );
+			$order->update_status( 'failed', __( 'Payment was declined by Kora.', 'korapay-payments-gateway' ) );
 			return false;
 		}
 
@@ -600,7 +600,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 			$order->add_meta_data( '_transaction_id', $korapay_ref, true );
 
 			$notice = sprintf(
-				__( 'Your payment was successful, but the amount paid is less than the order total. Your order is on hold.', 'woo-korapay' )
+				__( 'Your payment was successful, but the amount paid is less than the order total. Your order is on hold.', 'korapay-payments-gateway' )
 			);
 			$order->add_order_note( $notice );
 			wc_add_notice( $notice, 'notice' );
@@ -612,7 +612,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 			$order->update_meta_data( '_transaction_id', $korapay_ref );
 
 			$notice = sprintf(
-				__( 'Payment was successful, but the payment currency (%s) is different from the order currency (%s). Order is on hold.', 'woo-korapay' ),
+				__( 'Payment was successful, but the payment currency (%s) is different from the order currency (%s). Order is on hold.', 'korapay-payments-gateway' ),
 				$payment_currency, $order_currency
 			);
 			$order->add_order_note( $notice );
@@ -623,14 +623,14 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 			$order->update_status( 'on-hold', '' );
 			$order->update_meta_data( '_transaction_id', $korapay_ref );
 
-			$notice      = sprintf( __( 'Thank you for shopping with us.%1$sYour payment was successful, but transaction reference comparison seems differnet.%2$sYour order is currently on-hold.%3$sKindly contact us for more information regarding your order and payment status.', 'woo-korapay' ), '<br />', '<br />', '<br />' );
+			$notice      = sprintf( __( 'Thank you for shopping with us.%1$sYour payment was successful, but transaction reference comparison seems differnet.%2$sYour order is currently on-hold.%3$sKindly contact us for more information regarding your order and payment status.', 'korapay-payments-gateway' ), '<br />', '<br />', '<br />' );
 			$notice_type = 'notice';
 
 			// Add Customer Order Note.
 			$order->add_order_note( $notice, 1 );
 
 			// Add Admin Order Note.
-			$admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Transaction reference comparison failed.%3$sOrder Transaction reference is <strong>%4$s</strong> while the transaction reference from Kora is <strong>%5$s</strong>%6$s<strong>Kora Transaction Reference:</strong> %7$s', 'woo-korapay' ), '<br />', '<br />', '<br />', $order->get_meta( '_korapay_txn_ref' ), $korapay_ref, '<br />', $korapay_ref );
+			$admin_order_note = sprintf( __( '<strong>Issue! Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Transaction reference comparison failed.%3$sOrder Transaction reference is <strong>%4$s</strong> while the transaction reference from Kora is <strong>%5$s</strong>%6$s<strong>Kora Transaction Reference:</strong> %7$s', 'korapay-payments-gateway' ), '<br />', '<br />', '<br />', $order->get_meta( '_korapay_txn_ref' ), $korapay_ref, '<br />', $korapay_ref );
 			$order->add_order_note( $admin_order_note );
 
 			function_exists( 'wc_reduce_stock_levels' ) ? wc_reduce_stock_levels( $order_id ) : $order->reduce_order_stock();
@@ -638,7 +638,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 		} else {
 			// Success, complete the order.
 			$order->payment_complete( $korapay_ref );
-			$order->add_order_note( sprintf( __( 'Payment via Kora successful (Transaction Reference: %s)', 'woo-korapay' ), $korapay_ref ) );
+			$order->add_order_note( sprintf( __( 'Payment via Kora successful (Transaction Reference: %s)', 'korapay-payments-gateway' ), $korapay_ref ) );
 
 			if ( $this->is_autocomplete_order_enabled( $order ) ) {
 				$order->update_status( 'completed' );
@@ -687,7 +687,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 
 		if ( 'success' === $response['data']['status'] ) {
 
-			$merchant_note = sprintf( __( 'Refund for Order ID: #%1$s on %2$s', 'woo-korapay' ), $order_id, get_site_url() );
+			$merchant_note = sprintf( __( 'Refund for Order ID: #%1$s on %2$s', 'korapay-payments-gateway' ), $order_id, get_site_url() );
 
 			$body = array(
 				'transaction'   => $transaction_id,
@@ -715,7 +715,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 				if ( $refund_response['status'] ) {
 					$amount         = wc_price( $amount, array( 'currency' => $currency ) );
 					$refund_id      = $refund_response['data']['id'];
-					$refund_message = sprintf( __( 'Refunded %1$s. Refund ID: %2$s. Reason: %3$s', 'woo-korapay' ), $amount, $refund_id, $reason );
+					$refund_message = sprintf( __( 'Refunded %1$s. Refund ID: %2$s. Reason: %3$s', 'korapay-payments-gateway' ), $amount, $refund_id, $reason );
 					$order->add_order_note( $refund_message );
 
 					return true;
@@ -725,7 +725,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 				if ( isset( $refund_response->message ) ) {
 					return new WP_Error( 'error', $refund_response['message'] );
 				} else {
-					return new WP_Error( 'error', __( 'Can&#39;t process refund at the moment. Try again later.', 'woo-korapay' ) );
+					return new WP_Error( 'error', __( 'Can&#39;t process refund at the moment. Try again later.', 'korapay-payments-gateway' ) );
 				}
 			}
 
@@ -785,7 +785,7 @@ class WC_Gateway_Korapay extends \WC_Payment_Gateway {
 	public function is_valid_for_use() {
 		if ( ! in_array( get_woocommerce_currency(), apply_filters( 'wc_korapay_supported_currencies', array( 'NGN', 'GHS', 'KES', 'XAF', 'XOF', 'ZAR' ) ) ) ) {
 			$this->msg = sprintf( 
-				__( 'Sorry, Kora does not support your store currency. Kindly set it to either NGN (&#8358;), GHS (&#x20b5;), KES (KSh), XAF (FCFA), XOF (CFA), or ZAR (R) <a href="%s">here</a>', 'woo-korapay' ), 
+				__( 'Sorry, Kora does not support your store currency. Kindly set it to either NGN (&#8358;), GHS (&#x20b5;), KES (KSh), XAF (FCFA), XOF (CFA), or ZAR (R) <a href="%s">here</a>', 'korapay-payments-gateway' ), 
 				admin_url( 'admin.php?page=wc-settings&tab=general' ) 
 			);
 			return false;

@@ -72,7 +72,7 @@ final class WC_Gateway_Korapay_Blocks_Support extends AbstractPaymentMethodType 
 		);
 
 		if ( function_exists( 'wp_set_script_translations' ) ) {
-			wp_set_script_translations( 'wc-korapay-blocks', 'woo-korapay', );
+			wp_set_script_translations( 'wc-korapay-blocks', 'korapay-payments-gateway', );
 		}
 
 		return array( 'wc-korapay-blocks' );

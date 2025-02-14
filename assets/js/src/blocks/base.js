@@ -8,7 +8,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 
 const defaultLabel = __(
     'Korapay ',
-    'woo-korapay'
+    'korapay-payments-gateway'
 );
 
 export const ariaLabel = ({ title }) => {

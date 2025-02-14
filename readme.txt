@@ -1,6 +1,6 @@
 === Kora WooCommerce Payment Gateway ===
 Contributors: Kora  
-Tags: payment gateway, WooCommerce, Kora, e-commerce, African payments  
+Tags: Payment gateway, WooCommerce, Kora, e-commerce, African payments
 Requires at least: 5.0  
 Tested up to: 6.4  
 WC requires at least: 7.0.0  
