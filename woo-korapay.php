@@ -3,7 +3,7 @@
  * Plugin Name: Kora WooCommerce Payment Gateway
  * Plugin URI: https://korahq.com
  * Description: A WooCommerce payment gateway for Kora.
- * Version: 1.0.0
+ * Version: 2.0.0
  * Author: Kora
  * Author URI: https://korahq.com
  * Text Domain: korapay-payments-gateway
@@ -17,7 +17,7 @@ namespace WC_KORAPAY;
 defined( 'ABSPATH' ) || exit;
 
 // Define plugin constants.
-define( 'WC_KORAPAY_VERSION', '1.0.0' );
+define( 'WC_KORAPAY_VERSION', '2.0.0' );
 define( 'WC_KORAPAY_PLUGIN_FILE', __FILE__ );
 define( 'WC_KORAPAY_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WC_KORAPAY_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -31,7 +31,7 @@ if ( ! function_exists( 'WC_KORAPAY\\load_plugin_textdomain' ) ) {
 	 * @since  1.0.0
 	 */
 	function load_textdomain() {
-		load_plugin_textdomain( 'wc-korapay', false, plugin_basename( dirname( WC_KORAPAY_PLUGIN_FILE ) ) . '/languages' );
+		load_plugin_textdomain( 'korapay-payments-gateway', false, plugin_basename( dirname( WC_KORAPAY_PLUGIN_FILE ) ) . '/languages' );
 	}
 }
 add_action( 'plugins_loaded', 'WC_KORAPAY\\load_textdomain' );

@@ -5,6 +5,10 @@
     "license": "GPL-3.0",
     "authors": [
       {
+        "name": "Kora Developers",
+        "email": "developers@korahq.com"
+    },
+      {
           "name": "Precious Omonzejele",
           "email": "me@codexplorer.ninja"
       }

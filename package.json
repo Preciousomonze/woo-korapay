@@ -1,6 +1,6 @@
 {
-    "name": "woo-korapay",
-    "version": "1.0.0",
+    "name": "korapay-payments-gateway",
+    "version": "2.0.0",
     "description": "WooCommerce payment gateway for Kora",
     "scripts": {
         "build:scripts": "wp-scripts build",
@@ -13,7 +13,7 @@
         "compress-offload-delete": "npm run compress-zip && npm run offload-zip && npm run delete-zip",
         "build": "npm run build:scripts && npm run makepot && npm run compress-zip"
     },
-    "author": "Precious Omonzejele",
+    "author": "Kora Developers",
     "license": "GPL-3.0",
     "dependencies": {
         "@wordpress/dom-ready": "^3.50.0",
